@@ -11,7 +11,6 @@ import (
 func main() {
 
 	router := gin.Default()
-
 	gin.SetMode(gin.ReleaseMode)
 
 	router.POST("/ping", handler.PinHandler)
@@ -22,6 +21,7 @@ func main() {
 		port = "8080" // Default port if not specified
 	}
 
+	log.Printf("Server running on port %s", port)
 	router.Run(":" + port)
 
 }
