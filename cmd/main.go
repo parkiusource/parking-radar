@@ -1,25 +1,53 @@
 package main
 
 import (
+	"bytes"
+	"log"
+	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/CamiloLeonP/parking-radar/internal/app/handler"
 	"github.com/gin-gonic/gin"
+	_ "github.com/heroku/x/hmetrics/onload"
 )
 
+func repeatHandler(r int) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var buffer bytes.Buffer
+		for i := 0; i < r; i++ {
+			buffer.WriteString("Hello from Go!\n")
+		}
+		c.String(http.StatusOK, buffer.String())
+	}
+}
+
 func main() {
+	port := os.Getenv("PORT")
 
-	router := gin.Default()
+	if port == "" {
+		log.Fatal("$PORT must be set")
+	}
 
-	gin.SetMode(gin.ReleaseMode)
+	tStr := os.Getenv("REPEAT")
+	repeat, err := strconv.Atoi(tStr)
+	if err != nil {
+		log.Printf("Error converting $REPEAT to an int: %q - Using default\n", err)
+		repeat = 5
+	}
+
+	router := gin.New()
+	router.Use(gin.Logger())
+	router.LoadHTMLGlob("templates/*.tmpl.html")
+	router.Static("/static", "static")
+
+	router.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.tmpl.html", nil)
+	})
+
+	router.GET("/repeat", repeatHandler(repeat))
 
 	router.POST("/ping", handler.PinHandler)
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080" // Default port if not specified
-	}
-
 	router.Run(":" + port)
-
 }
