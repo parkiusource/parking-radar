@@ -1,0 +1,43 @@
+# Binarios compilados
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# Archivos de salida
+*.out
+*.log
+
+# Directorio para paquetes compilados (nuevo en Go 1.10)
+/bin/
+
+# Directorios de dependencias
+/vendor/
+/Godeps/
+
+# Archivos misceláneos
+.DS_Store
+*.swp
+
+# Directorios de configuración del editor/IDE específicos
+.vscode/
+.idea/
+
+# Archivos de configuración específicos del sistema operativo
+Thumbs.db
+ehthumbs.db
+
+# Carpeta que puede contener perfiles de usuario creados durante tests
+testdata/
+
+# Archivos de cobertura generados por 'go test'
+*.cover
+
+# Archivos de configuración del entorno local
+.env
+.env.local
+
+# Carpeta que contiene archivos de objeto que pueden contener información sensible
+/obj/
