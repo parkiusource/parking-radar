@@ -16,7 +16,7 @@ func PinHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":  "received",
+		"message":  "received data",
 		"yourData": data.Test,
 	})
 }
