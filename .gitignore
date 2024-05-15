@@ -10,9 +10,6 @@
 *.out
 *.log
 
-# Directorio para paquetes compilados (nuevo en Go 1.10)
-/bin/
-
 # Directorios de dependencias
 /vendor/
 /Godeps/
