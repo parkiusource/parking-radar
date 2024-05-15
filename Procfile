@@ -1,1 +1,1 @@
-web: bin/my-parking-api
+web: bin/myapp
