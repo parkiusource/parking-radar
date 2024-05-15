@@ -21,6 +21,7 @@
 # Directorios de configuración del editor/IDE específicos
 .vscode/
 .idea/
+.replit
 
 # Archivos de configuración específicos del sistema operativo
 Thumbs.db
