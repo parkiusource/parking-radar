@@ -1,1 +1,1 @@
-web: bin/myapp
+web: myapp
