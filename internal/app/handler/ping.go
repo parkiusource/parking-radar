@@ -20,3 +20,25 @@ func PinHandler(c *gin.Context) {
 		"yourData": data.Test,
 	})
 }
+
+
+func InitHandler(c *gin.Context) {
+	
+	/*var data domain.InitData
+
+	if err := c.ShouldBindJSON(&data); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}*/
+
+	Uid := c.GetHeader("UID")
+	if Uid == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Uid header missing"})
+			c.Abort()
+			return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"Auth": "Autorizado con el dispositivo " + Uid,
+	})
+}
