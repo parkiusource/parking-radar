@@ -3,11 +3,22 @@ package main
 import (
 	"log"
 	"os"
+
+	"github.com/CamiloLeonP/parking-radar/internal/app/domain"
 	"github.com/CamiloLeonP/parking-radar/internal/app/router"
+	"github.com/CamiloLeonP/parking-radar/internal/db"
+
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+
+	db.ConnectDatabase()
+
+	err := db.DB.AutoMigrate(&domain.User{}, &domain.ParkingLot{}, &domain.Reservation{}, &domain.Sensor{}, &domain.Admin{})
+	if err != nil {
+		log.Fatal("Failed to migrate database:", err)
+	}
 
 	gin.SetMode(gin.ReleaseMode)
 	root := router.SetupRouter()

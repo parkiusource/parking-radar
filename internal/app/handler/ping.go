@@ -8,8 +8,7 @@ import (
 )
 
 func PinHandler(c *gin.Context) {
-	var data domain.SensorData
-
+	var data domain.Sensor
 	if err := c.ShouldBindJSON(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -17,13 +16,12 @@ func PinHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message":  "received data",
-		"yourData": data.Test,
+		"yourData": data.ID,
 	})
 }
 
-
 func InitHandler(c *gin.Context) {
-	
+
 	/*var data domain.InitData
 
 	if err := c.ShouldBindJSON(&data); err != nil {
@@ -33,9 +31,9 @@ func InitHandler(c *gin.Context) {
 
 	Uid := c.GetHeader("UID")
 	if Uid == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Uid header missing"})
-			c.Abort()
-			return
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Uid header missing"})
+		c.Abort()
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
