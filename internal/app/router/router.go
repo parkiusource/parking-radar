@@ -1,16 +1,25 @@
 package router
 
 import (
-    "github.com/gin-gonic/gin"
-    "github.com/CamiloLeonP/parking-radar/internal/app/handler"
+	"github.com/CamiloLeonP/parking-radar/internal/app/adapter/input/handler"
+	"github.com/CamiloLeonP/parking-radar/internal/config"
+
+	"github.com/gin-gonic/gin"
 )
 
 func SetupRouter() *gin.Engine {
-  router := gin.Default()
+	r := gin.Default()
 
-  router.POST("/ping", handler.PinHandler)
+	handlers := config.SetupDependencies()
+	users := r.Group("/users")
+	{
+		users.POST("/register", handlers.UserHandler.Register)
+		users.GET("/:id", handlers.UserHandler.GetUserByID)
+	}
 
-  router.GET("/init", handler.AuthMiddleware(), handler.InitHandler)
+	r.POST("/ping", handler.PinHandler)
 
-  return router
+	r.GET("/init", handler.AuthMiddleware(), handler.InitHandler)
+
+	return r
 }
