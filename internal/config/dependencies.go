@@ -7,24 +7,23 @@ import (
 )
 
 type Handlers struct {
-	UserHandler *handler.UserHandler
-	// Agrega otros handlers aquí
+	UserHandler       *handler.UserHandler
+	ParkingLotHandler *handler.ParkingLotHandler
 }
 
 func SetupDependencies() *Handlers {
 	// Configuración para User
 	userRepository := &db.UserRepository{}
-	userUsecase := &usecase.UserUseCase{UserRepository: userRepository}
-	userHandler := handler.NewUserHandler(*userUsecase)
+	userUseCase := usecase.NewUserUseCase(userRepository)
+	userHandler := handler.NewUserHandler(userUseCase)
 
-	/*
-		// Configuración para ParkingLot
-		parkingRepository := &db.ParkingRepository{}
-		parkingUsecase := &usecase.ParkingUsecase{ParkingRepository: parkingRepository}
-		parkingHandler := rest.NewParkingHandler(parkingUsecase)*/
+	// Configuración para ParkingLot
+	parkingLotRepository := &db.ParkingLotRepository{}
+	parkingLotUsecase := &usecase.ParkingLotUseCase{ParkingLotRepository: parkingLotRepository}
+	parkingLotHandler := handler.NewParkingLotHandler(*parkingLotUsecase)
 
 	return &Handlers{
-		UserHandler: userHandler,
-		// Agrega otros handlers aquí
+		UserHandler:       userHandler,
+		ParkingLotHandler: parkingLotHandler,
 	}
 }

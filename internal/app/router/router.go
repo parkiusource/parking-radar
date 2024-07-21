@@ -15,6 +15,17 @@ func SetupRouter() *gin.Engine {
 	{
 		users.POST("/register", handlers.UserHandler.Register)
 		users.GET("/:id", handlers.UserHandler.GetUserByID)
+		users.PUT("/:id", handlers.UserHandler.UpdateUser)
+		users.DELETE("/:id", handlers.UserHandler.DeleteUser)
+	}
+
+	parkingLots := r.Group("/parkinglots")
+	{
+		parkingLots.POST("/", handlers.ParkingLotHandler.CreateParkingLot)
+		parkingLots.GET("/", handlers.ParkingLotHandler.ListParkingLots)
+		parkingLots.GET("/:id", handlers.ParkingLotHandler.GetParkingLot)
+		parkingLots.PUT("/:id", handlers.ParkingLotHandler.UpdateParkingLot)
+		parkingLots.DELETE("/:id", handlers.ParkingLotHandler.DeleteParkingLot)
 	}
 
 	r.POST("/ping", handler.PinHandler)

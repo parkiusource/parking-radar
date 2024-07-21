@@ -4,17 +4,25 @@ import (
 	"time"
 
 	"github.com/CamiloLeonP/parking-radar/internal/app/domain"
+	"github.com/CamiloLeonP/parking-radar/internal/app/repository"
 	"golang.org/x/crypto/bcrypt"
 )
 
-type UserRepository interface {
-	Create(user *domain.User) error
+type IUserUseCase interface {
+	Register(username, password, email string) (*domain.User, error)
 	FindByID(id uint) (*domain.User, error)
-	FindByUserName(username string) (*domain.User, error)
+	UpdateUser(id uint, username, email, password string) (*domain.User, error)
+	DeleteUser(id uint) error
 }
 
 type UserUseCase struct {
-	UserRepository UserRepository
+	UserRepository repository.UserRepository
+}
+
+func NewUserUseCase(userRepo repository.UserRepository) IUserUseCase {
+	return &UserUseCase{
+		UserRepository: userRepo,
+	}
 }
 
 func (u *UserUseCase) Register(username, password, email string) (*domain.User, error) {
@@ -40,4 +48,33 @@ func (u *UserUseCase) Register(username, password, email string) (*domain.User, 
 
 func (u *UserUseCase) FindByID(id uint) (*domain.User, error) {
 	return u.UserRepository.FindByID(id)
+}
+
+func (u *UserUseCase) UpdateUser(id uint, username, email, password string) (*domain.User, error) {
+	user, err := u.UserRepository.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	user.Username = username
+	user.Email = email
+	user.UpdatedAt = time.Now()
+
+	if password != "" {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+		if err != nil {
+			return nil, err
+		}
+		user.PasswordHash = string(hashedPassword)
+	}
+
+	if err := u.UserRepository.Update(user); err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (u *UserUseCase) DeleteUser(id uint) error {
+	return u.UserRepository.Delete(id)
 }
