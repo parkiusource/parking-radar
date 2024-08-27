@@ -13,12 +13,12 @@ type Handlers struct {
 
 func SetupDependencies() *Handlers {
 	// Configuración para User
-	userRepository := &db.UserRepository{}
+	userRepository := &db.UserRepositoryImpl{}
 	userUseCase := usecase.NewUserUseCase(userRepository)
 	userHandler := handler.NewUserHandler(userUseCase)
 
 	// Configuración para ParkingLot
-	parkingLotRepository := &db.ParkingLotRepository{}
+	parkingLotRepository := &db.ParkingLotRepositoryImpl{}
 	parkingLotUseCase := usecase.NewParkingLotUseCase(parkingLotRepository)
 	parkingLotHandler := handler.NewParkingLotHandler(parkingLotUseCase)
 

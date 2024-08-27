@@ -2,7 +2,7 @@ package repository
 
 import "github.com/CamiloLeonP/parking-radar/internal/app/domain"
 
-type UserRepository interface {
+type IUserRepository interface {
 	Create(user *domain.User) error
 	FindByID(id uint) (*domain.User, error)
 	FindByUserName(username string) (*domain.User, error)

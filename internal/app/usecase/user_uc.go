@@ -8,6 +8,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+//go:generate mockgen -source=./user_uc.go -destination=mocks/mock_user_uc.go -package=mocks
 type IUserUseCase interface {
 	Register(username, password, email string) (*domain.User, error)
 	FindByID(id uint) (*domain.User, error)
@@ -16,10 +17,10 @@ type IUserUseCase interface {
 }
 
 type UserUseCase struct {
-	UserRepository repository.UserRepository
+	UserRepository repository.IUserRepository
 }
 
-func NewUserUseCase(userRepo repository.UserRepository) IUserUseCase {
+func NewUserUseCase(userRepo repository.IUserRepository) IUserUseCase {
 	return &UserUseCase{
 		UserRepository: userRepo,
 	}

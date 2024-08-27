@@ -16,7 +16,7 @@ type IParkingLotUseCase interface {
 }
 
 type ParkingLotUseCase struct {
-	ParkingLotRepository repository.ParkingLotRepository
+	ParkingLotRepository repository.IParkingLotRepository
 }
 
 type CreateParkingLotRequest struct {
@@ -31,7 +31,7 @@ type UpdateParkingLotRequest struct {
 	TotalSpaces int    `json:"total_spaces"`
 }
 
-func NewParkingLotUseCase(parkingLotRepo repository.ParkingLotRepository) IParkingLotUseCase {
+func NewParkingLotUseCase(parkingLotRepo repository.IParkingLotRepository) IParkingLotUseCase {
 	return &ParkingLotUseCase{
 		ParkingLotRepository: parkingLotRepo,
 	}
