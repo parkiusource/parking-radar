@@ -9,10 +9,10 @@ import (
 )
 
 type ParkingLotHandler struct {
-	ParkingLotUseCase usecase.ParkingLotUseCase
+	ParkingLotUseCase usecase.IParkingLotUseCase
 }
 
-func NewParkingLotHandler(ParkingLotUseCase usecase.ParkingLotUseCase) *ParkingLotHandler {
+func NewParkingLotHandler(ParkingLotUseCase usecase.IParkingLotUseCase) *ParkingLotHandler {
 	return &ParkingLotHandler{ParkingLotUseCase: ParkingLotUseCase}
 }
 

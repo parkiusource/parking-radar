@@ -7,6 +7,14 @@ import (
 	"github.com/CamiloLeonP/parking-radar/internal/app/repository"
 )
 
+type IParkingLotUseCase interface {
+	CreateParkingLot(req CreateParkingLotRequest) error
+	GetParkingLot(parkingLotID uint) (*domain.ParkingLot, error)
+	UpdateParkingLot(parkingLotID uint, req UpdateParkingLotRequest) error
+	DeleteParkingLot(parkingLotID uint) error
+	ListParkingLots() ([]domain.ParkingLot, error)
+}
+
 type ParkingLotUseCase struct {
 	ParkingLotRepository repository.ParkingLotRepository
 }
@@ -21,6 +29,12 @@ type UpdateParkingLotRequest struct {
 	Name        string `json:"name"`
 	Location    string `json:"location"`
 	TotalSpaces int    `json:"total_spaces"`
+}
+
+func NewParkingLotUseCase(parkingLotRepo repository.ParkingLotRepository) IParkingLotUseCase {
+	return &ParkingLotUseCase{
+		ParkingLotRepository: parkingLotRepo,
+	}
 }
 
 func (uc *ParkingLotUseCase) CreateParkingLot(req CreateParkingLotRequest) error {

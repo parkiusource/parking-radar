@@ -19,8 +19,8 @@ func SetupDependencies() *Handlers {
 
 	// Configuración para ParkingLot
 	parkingLotRepository := &db.ParkingLotRepository{}
-	parkingLotUsecase := &usecase.ParkingLotUseCase{ParkingLotRepository: parkingLotRepository}
-	parkingLotHandler := handler.NewParkingLotHandler(*parkingLotUsecase)
+	parkingLotUseCase := usecase.NewParkingLotUseCase(parkingLotRepository)
+	parkingLotHandler := handler.NewParkingLotHandler(parkingLotUseCase)
 
 	return &Handlers{
 		UserHandler:       userHandler,
