@@ -6,11 +6,12 @@ import (
 )
 
 func SetupRouter() *gin.Engine {
+    
   router := gin.Default()
 
   router.POST("/ping", handler.PinHandler)
 
   router.GET("/init", handler.AuthMiddleware(), handler.InitHandler)
-
+    
   return router
 }
