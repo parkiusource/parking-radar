@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -19,6 +20,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Failed to migrate database:", err)
 	}
+	fmt.Println("Conexión exitosa a PostgreSQL y tablas creadas")
 
 	gin.SetMode(gin.ReleaseMode)
 	root := router.SetupRouter()

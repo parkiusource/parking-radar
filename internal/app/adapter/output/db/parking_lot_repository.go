@@ -30,10 +30,10 @@ func (r *ParkingLotRepositoryImpl) Delete(id uint) error {
 }
 
 func (r *ParkingLotRepositoryImpl) List() ([]domain.ParkingLot, error) {
-	var parlingLots []domain.ParkingLot
-	if err := r.DB.Find(&parlingLots).Error; err != nil {
+	var parkingLots []domain.ParkingLot
+	if err := r.DB.Find(&parkingLots).Error; err != nil {
 		return nil, err
 	}
 
-	return parlingLots, nil
+	return parkingLots, nil
 }

@@ -20,15 +20,17 @@ type ParkingLotUseCase struct {
 }
 
 type CreateParkingLotRequest struct {
-	Name        string `json:"name"`
-	Location    string `json:"location"`
-	TotalSpaces int    `json:"total_spaces"`
+	Name        string  `json:"name"`
+	Latitude    float64 `json:"latitude"`
+	Longitude   float64 `json:"longitude"`
+	TotalSpaces int     `json:"total_spaces"`
 }
 
 type UpdateParkingLotRequest struct {
-	Name        string `json:"name"`
-	Location    string `json:"location"`
-	TotalSpaces int    `json:"total_spaces"`
+	Name        string  `json:"name"`
+	Latitude    float64 `json:"latitude"`
+	Longitude   float64 `json:"longitude"`
+	TotalSpaces int     `json:"total_spaces"`
 }
 
 func NewParkingLotUseCase(parkingLotRepo repository.IParkingLotRepository) IParkingLotUseCase {
@@ -40,7 +42,8 @@ func NewParkingLotUseCase(parkingLotRepo repository.IParkingLotRepository) IPark
 func (uc *ParkingLotUseCase) CreateParkingLot(req CreateParkingLotRequest) error {
 	parkingLot := domain.ParkingLot{
 		Name:        req.Name,
-		Location:    req.Location,
+		Latitude:    req.Latitude,
+		Longitude:   req.Longitude,
 		TotalSpaces: req.TotalSpaces,
 	}
 
@@ -58,7 +61,8 @@ func (uc *ParkingLotUseCase) UpdateParkingLot(parkingLotID uint, req UpdateParki
 	}
 
 	parkingLot.Name = req.Name
-	parkingLot.Location = req.Location
+	parkingLot.Latitude = req.Latitude
+	parkingLot.Longitude = req.Longitude
 
 	// Actualizar availableSpaces solo si totalSpaces cambia
 	if parkingLot.TotalSpaces != req.TotalSpaces {

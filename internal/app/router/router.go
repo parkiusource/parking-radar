@@ -19,7 +19,7 @@ func SetupRouter() *gin.Engine {
 		users.DELETE("/:id", handlers.UserHandler.DeleteUser)
 	}
 
-	parkingLots := r.Group("/parkinglots")
+	parkingLots := r.Group("/parking-lots")
 	{
 		parkingLots.POST("/", handlers.ParkingLotHandler.CreateParkingLot)
 		parkingLots.GET("/", handlers.ParkingLotHandler.ListParkingLots)
