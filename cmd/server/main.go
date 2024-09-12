@@ -16,7 +16,7 @@ func main() {
 
 	db.ConnectDatabase()
 
-	err := db.DB.AutoMigrate(&domain.User{}, &domain.ParkingLot{}, &domain.Reservation{}, &domain.Sensor{}, &domain.Admin{})
+	err := db.DB.AutoMigrate(&domain.User{}, &domain.ParkingLot{}, &domain.Sensor{}, &domain.Admin{})
 	if err != nil {
 		log.Fatal("Failed to migrate database:", err)
 	}

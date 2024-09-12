@@ -8,23 +8,43 @@ import (
 )
 
 type Handlers struct {
-	UserHandler       *handler.UserHandler
-	ParkingLotHandler *handler.ParkingLotHandler
+	UserHandler        *handler.UserHandler
+	ParkingLotHandler  *handler.ParkingLotHandler
+	SensorHandler      *handler.SensorHandler
+	Esp32DeviceHandler *handler.Esp32DeviceHandler
 }
 
 func SetupDependencies() *Handlers {
-	// Configuración para User
-	userRepository := &db.UserRepositoryImpl{}
-	userUseCase := usecase.NewUserUseCase(userRepository)
-	userHandler := handler.NewUserHandler(userUseCase)
+	return &Handlers{
+		UserHandler:        setupUserHandler(),
+		ParkingLotHandler:  setupParkingLotHandler(),
+		SensorHandler:      setupSensorHandler(),
+		Esp32DeviceHandler: setupEsp32DeviceHandler(),
+	}
+}
 
-	// Configuración para ParkingLot
+func setupUserHandler() *handler.UserHandler {
+	userRepository := &db.UserRepositoryImpl{DB: db2.DB}
+	userUseCase := usecase.NewUserUseCase(userRepository)
+	return handler.NewUserHandler(userUseCase)
+}
+
+func setupParkingLotHandler() *handler.ParkingLotHandler {
 	parkingLotRepository := &db.ParkingLotRepositoryImpl{DB: db2.DB}
 	parkingLotUseCase := usecase.NewParkingLotUseCase(parkingLotRepository)
-	parkingLotHandler := handler.NewParkingLotHandler(parkingLotUseCase)
+	return handler.NewParkingLotHandler(parkingLotUseCase)
+}
 
-	return &Handlers{
-		UserHandler:       userHandler,
-		ParkingLotHandler: parkingLotHandler,
-	}
+func setupSensorHandler() *handler.SensorHandler {
+	sensorRepository := &db.SensorRepositoryImpl{DB: db2.DB}
+	esp32DeviceRepository := &db.Esp32DeviceRepositoryImpl{DB: db2.DB}
+	sensorUseCase := usecase.NewSensorUseCase(sensorRepository, esp32DeviceRepository)
+	return handler.NewSensorHandler(sensorUseCase)
+}
+
+func setupEsp32DeviceHandler() *handler.Esp32DeviceHandler {
+	esp32DeviceRepository := &db.Esp32DeviceRepositoryImpl{DB: db2.DB}
+	sensorRepository := &db.SensorRepositoryImpl{DB: db2.DB}
+	esp32DeviceUseCase := usecase.NewEsp32DeviceUseCase(esp32DeviceRepository, sensorRepository)
+	return handler.NewEsp32DeviceHandler(esp32DeviceUseCase)
 }

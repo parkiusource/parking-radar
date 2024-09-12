@@ -31,6 +31,14 @@ func (r *SensorRepositoryImpl) ListByParkingLot(parkingLotID uint) ([]domain.Sen
 	return sensor, nil
 }
 
+func (r *SensorRepositoryImpl) ListByEsp32DeviceID(esp32DeviceID uint64) ([]domain.Sensor, error) {
+	var sensors []domain.Sensor
+	if err := r.DB.Where("esp32_device_id = ?", esp32DeviceID).Find(&sensors).Error; err != nil {
+		return nil, err
+	}
+	return sensors, nil
+}
+
 func (r *SensorRepositoryImpl) Update(sensor *domain.Sensor) error {
 	return r.DB.Save(sensor).Error
 }
