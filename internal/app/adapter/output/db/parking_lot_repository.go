@@ -5,15 +5,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type ParkingLotRepository struct {
+type ParkingLotRepositoryImpl struct {
 	DB *gorm.DB
 }
 
-func (r *ParkingLotRepository) Create(parkingLot *domain.ParkingLot) error {
+func (r *ParkingLotRepositoryImpl) Create(parkingLot *domain.ParkingLot) error {
 	return r.DB.Create(parkingLot).Error
 }
 
-func (r *ParkingLotRepository) GetByID(id uint) (*domain.ParkingLot, error) {
+func (r *ParkingLotRepositoryImpl) GetByID(id uint) (*domain.ParkingLot, error) {
 	var parkingLot domain.ParkingLot
 	if err := r.DB.First(&parkingLot, "id = ?", id).Error; err != nil {
 		return nil, err
@@ -21,19 +21,19 @@ func (r *ParkingLotRepository) GetByID(id uint) (*domain.ParkingLot, error) {
 	return &parkingLot, nil
 }
 
-func (r *ParkingLotRepository) Update(parkingLot *domain.ParkingLot) error {
+func (r *ParkingLotRepositoryImpl) Update(parkingLot *domain.ParkingLot) error {
 	return r.DB.Save(parkingLot).Error
 }
 
-func (r *ParkingLotRepository) Delete(id uint) error {
+func (r *ParkingLotRepositoryImpl) Delete(id uint) error {
 	return r.DB.Delete(&domain.ParkingLot{}, "id = ?", id).Error
 }
 
-func (r *ParkingLotRepository) List() ([]domain.ParkingLot, error) {
-	var parlingLots []domain.ParkingLot
-	if err := r.DB.Find(&parlingLots).Error; err != nil {
+func (r *ParkingLotRepositoryImpl) List() ([]domain.ParkingLot, error) {
+	var parkingLots []domain.ParkingLot
+	if err := r.DB.Find(&parkingLots).Error; err != nil {
 		return nil, err
 	}
 
-	return parlingLots, nil
+	return parkingLots, nil
 }

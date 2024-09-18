@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -15,10 +16,11 @@ func main() {
 
 	db.ConnectDatabase()
 
-	err := db.DB.AutoMigrate(&domain.User{}, &domain.ParkingLot{}, &domain.Reservation{}, &domain.Sensor{}, &domain.Admin{})
+	err := db.DB.AutoMigrate(&domain.User{}, &domain.ParkingLot{}, &domain.Sensor{}, &domain.Admin{})
 	if err != nil {
 		log.Fatal("Failed to migrate database:", err)
 	}
+	fmt.Println("Conexión exitosa a PostgreSQL y tablas creadas")
 
 	gin.SetMode(gin.ReleaseMode)
 	root := router.SetupRouter()

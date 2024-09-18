@@ -2,7 +2,7 @@ package repository
 
 import "github.com/CamiloLeonP/parking-radar/internal/app/domain"
 
-type ParkingLotRepository interface {
+type IParkingLotRepository interface {
 	Create(parkingLot *domain.ParkingLot) error
 	GetByID(id uint) (*domain.ParkingLot, error)
 	Update(parkingLot *domain.ParkingLot) error

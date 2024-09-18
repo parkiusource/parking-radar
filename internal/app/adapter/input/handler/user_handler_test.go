@@ -9,14 +9,14 @@ import (
 	"testing"
 
 	"github.com/CamiloLeonP/parking-radar/internal/app/domain"
-	"github.com/CamiloLeonP/parking-radar/internal/app/usecase"
+	"github.com/CamiloLeonP/parking-radar/internal/app/usecase/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
 // Configuración de prueba para el handler de usuario
-func setupUserHandler(mockUseCase *usecase.MockIUserUseCase) *gin.Engine {
+func setupUserHandler(mockUseCase *mocks.MockIUserUseCase) *gin.Engine {
 	userHandler := NewUserHandler(mockUseCase)
 
 	r := gin.Default()
@@ -36,7 +36,7 @@ func TestRegisterUser(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := usecase.NewMockIUserUseCase(ctrl)
+	mockUseCase := mocks.NewMockIUserUseCase(ctrl)
 	r := setupUserHandler(mockUseCase)
 
 	mockUser := &domain.User{ID: 1, Username: "testuser", Email: "test@example.com"}
@@ -60,7 +60,7 @@ func TestGetUserByID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := usecase.NewMockIUserUseCase(ctrl)
+	mockUseCase := mocks.NewMockIUserUseCase(ctrl)
 	r := setupUserHandler(mockUseCase)
 
 	mockUser := &domain.User{ID: 1, Username: "testuser", Email: "test@example.com"}
@@ -82,7 +82,7 @@ func TestUpdateUser(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := usecase.NewMockIUserUseCase(ctrl)
+	mockUseCase := mocks.NewMockIUserUseCase(ctrl)
 	r := setupUserHandler(mockUseCase)
 
 	mockUser := &domain.User{ID: 1, Username: "updateduser", Email: "updated@example.com"}
@@ -106,7 +106,7 @@ func TestDeleteUser(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := usecase.NewMockIUserUseCase(ctrl)
+	mockUseCase := mocks.NewMockIUserUseCase(ctrl)
 	r := setupUserHandler(mockUseCase)
 
 	mockUseCase.EXPECT().DeleteUser(uint(1)).Return(nil)
@@ -127,7 +127,7 @@ func TestRegisterUser_Error(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := usecase.NewMockIUserUseCase(ctrl)
+	mockUseCase := mocks.NewMockIUserUseCase(ctrl)
 	r := setupUserHandler(mockUseCase)
 
 	mockUseCase.EXPECT().Register("testuser", "password", "test@example.com").Return(nil, errors.New("registration failed"))
@@ -150,7 +150,7 @@ func TestGetUserByID_Error(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := usecase.NewMockIUserUseCase(ctrl)
+	mockUseCase := mocks.NewMockIUserUseCase(ctrl)
 	r := setupUserHandler(mockUseCase)
 
 	mockUseCase.EXPECT().FindByID(uint(1)).Return(nil, errors.New("user not found"))
@@ -171,7 +171,7 @@ func TestUpdateUser_Error(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := usecase.NewMockIUserUseCase(ctrl)
+	mockUseCase := mocks.NewMockIUserUseCase(ctrl)
 	r := setupUserHandler(mockUseCase)
 
 	mockUseCase.EXPECT().UpdateUser(uint(1), "updateduser", "updated@example.com", "newpassword").Return(nil, errors.New("update failed"))
@@ -194,7 +194,7 @@ func TestDeleteUser_Error(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := usecase.NewMockIUserUseCase(ctrl)
+	mockUseCase := mocks.NewMockIUserUseCase(ctrl)
 	r := setupUserHandler(mockUseCase)
 
 	mockUseCase.EXPECT().DeleteUser(uint(1)).Return(errors.New("delete failed"))

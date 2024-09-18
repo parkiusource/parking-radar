@@ -11,6 +11,8 @@ func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
 	handlers := config.SetupDependencies()
+
+	// Rutas para usuarios
 	users := r.Group("/users")
 	{
 		users.POST("/register", handlers.UserHandler.Register)
@@ -19,13 +21,34 @@ func SetupRouter() *gin.Engine {
 		users.DELETE("/:id", handlers.UserHandler.DeleteUser)
 	}
 
-	parkingLots := r.Group("/parkinglots")
+	// Rutas para parking lots
+	parkingLots := r.Group("/parking-lots")
 	{
 		parkingLots.POST("/", handlers.ParkingLotHandler.CreateParkingLot)
 		parkingLots.GET("/", handlers.ParkingLotHandler.ListParkingLots)
 		parkingLots.GET("/:id", handlers.ParkingLotHandler.GetParkingLot)
 		parkingLots.PUT("/:id", handlers.ParkingLotHandler.UpdateParkingLot)
 		parkingLots.DELETE("/:id", handlers.ParkingLotHandler.DeleteParkingLot)
+	}
+
+	// Rutas para sensores
+	sensors := r.Group("/sensors")
+	{
+		sensors.POST("/", handlers.SensorHandler.CreateSensor)
+		sensors.GET("/", handlers.SensorHandler.ListSensors)
+		sensors.GET("/:id", handlers.SensorHandler.GetSensor)
+		sensors.PUT("/:id", handlers.SensorHandler.UpdateSensor)
+		sensors.DELETE("/:id", handlers.SensorHandler.DeleteSensor)
+	}
+
+	// Rutas para ESP32 devices
+	esp32Devices := r.Group("/esp32-devices")
+	{
+		esp32Devices.POST("/", handlers.Esp32DeviceHandler.CreateEsp32Device)
+		esp32Devices.GET("/", handlers.Esp32DeviceHandler.ListEsp32Devices)
+		esp32Devices.GET("/:id", handlers.Esp32DeviceHandler.GetEsp32Device)
+		esp32Devices.PUT("/:id", handlers.Esp32DeviceHandler.UpdateEsp32Device)
+		esp32Devices.DELETE("/:id", handlers.Esp32DeviceHandler.DeleteEsp32Device)
 	}
 
 	r.POST("/ping", handler.PinHandler)

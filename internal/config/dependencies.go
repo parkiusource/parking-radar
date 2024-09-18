@@ -4,26 +4,47 @@ import (
 	"github.com/CamiloLeonP/parking-radar/internal/app/adapter/input/handler"
 	"github.com/CamiloLeonP/parking-radar/internal/app/adapter/output/db"
 	"github.com/CamiloLeonP/parking-radar/internal/app/usecase"
+	db2 "github.com/CamiloLeonP/parking-radar/internal/db"
 )
 
 type Handlers struct {
-	UserHandler       *handler.UserHandler
-	ParkingLotHandler *handler.ParkingLotHandler
+	UserHandler        *handler.UserHandler
+	ParkingLotHandler  *handler.ParkingLotHandler
+	SensorHandler      *handler.SensorHandler
+	Esp32DeviceHandler *handler.Esp32DeviceHandler
 }
 
 func SetupDependencies() *Handlers {
-	// Configuración para User
-	userRepository := &db.UserRepository{}
-	userUseCase := usecase.NewUserUseCase(userRepository)
-	userHandler := handler.NewUserHandler(userUseCase)
-
-	// Configuración para ParkingLot
-	parkingLotRepository := &db.ParkingLotRepository{}
-	parkingLotUseCase := usecase.NewParkingLotUseCase(parkingLotRepository)
-	parkingLotHandler := handler.NewParkingLotHandler(parkingLotUseCase)
-
 	return &Handlers{
-		UserHandler:       userHandler,
-		ParkingLotHandler: parkingLotHandler,
+		UserHandler:        setupUserHandler(),
+		ParkingLotHandler:  setupParkingLotHandler(),
+		SensorHandler:      setupSensorHandler(),
+		Esp32DeviceHandler: setupEsp32DeviceHandler(),
 	}
+}
+
+func setupUserHandler() *handler.UserHandler {
+	userRepository := &db.UserRepositoryImpl{DB: db2.DB}
+	userUseCase := usecase.NewUserUseCase(userRepository)
+	return handler.NewUserHandler(userUseCase)
+}
+
+func setupParkingLotHandler() *handler.ParkingLotHandler {
+	parkingLotRepository := &db.ParkingLotRepositoryImpl{DB: db2.DB}
+	parkingLotUseCase := usecase.NewParkingLotUseCase(parkingLotRepository)
+	return handler.NewParkingLotHandler(parkingLotUseCase)
+}
+
+func setupSensorHandler() *handler.SensorHandler {
+	sensorRepository := &db.SensorRepositoryImpl{DB: db2.DB}
+	esp32DeviceRepository := &db.Esp32DeviceRepositoryImpl{DB: db2.DB}
+	sensorUseCase := usecase.NewSensorUseCase(sensorRepository, esp32DeviceRepository)
+	return handler.NewSensorHandler(sensorUseCase)
+}
+
+func setupEsp32DeviceHandler() *handler.Esp32DeviceHandler {
+	esp32DeviceRepository := &db.Esp32DeviceRepositoryImpl{DB: db2.DB}
+	sensorRepository := &db.SensorRepositoryImpl{DB: db2.DB}
+	esp32DeviceUseCase := usecase.NewEsp32DeviceUseCase(esp32DeviceRepository, sensorRepository)
+	return handler.NewEsp32DeviceHandler(esp32DeviceUseCase)
 }
