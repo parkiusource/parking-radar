@@ -19,8 +19,9 @@ type SensorUseCase struct {
 }
 
 type CreateSensorRequest struct {
-	ParkingLotID uint   `json:"parking_lot_id"`
-	Status       string `json:"status"`
+	ParkingLotID  uint   `json:"parking_lot_id"`
+	Esp32DeviceID uint64 `json:"esp32_device_id"`
+	Status        string `json:"status"`
 }
 
 type UpdateSensorRequest struct {
@@ -28,9 +29,10 @@ type UpdateSensorRequest struct {
 }
 
 type SensorResponse struct {
-	ID           uint   `json:"id"`
-	ParkingLotID uint   `json:"parking_lot_id"`
-	Status       string `json:"status"`
+	ID            uint   `json:"id"`
+	ParkingLotID  uint   `json:"parking_lot_id"`
+	Esp32DeviceID uint64 `json:"esp32_device_id"`
+	Status        string `json:"status"`
 }
 
 func NewSensorUseCase(sensorRepo repository.ISensorRepository, esp32DeviceRepo repository.IEsp32DeviceRepository) ISensorUseCase {
@@ -42,8 +44,9 @@ func NewSensorUseCase(sensorRepo repository.ISensorRepository, esp32DeviceRepo r
 
 func (uc *SensorUseCase) CreateSensor(req CreateSensorRequest) error {
 	sensor := domain.Sensor{
-		ParkingLotID: req.ParkingLotID,
-		Status:       req.Status,
+		ParkingLotID:  req.ParkingLotID,
+		Esp32DeviceID: req.Esp32DeviceID,
+		Status:        req.Status,
 	}
 
 	return uc.SensorRepository.Create(&sensor)
