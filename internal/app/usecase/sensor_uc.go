@@ -7,10 +7,10 @@ import (
 
 type ISensorUseCase interface {
 	CreateSensor(req CreateSensorRequest) error
-	GetSensor(sensorID uint) (*SensorResponse, error) // Cambia el retorno al response struct
+	GetSensor(sensorID uint) (*SensorResponse, error)
 	UpdateSensor(sensorID uint, req UpdateSensorRequest) error
 	DeleteSensor(sensorID uint) error
-	ListSensorsByParkingLot(parkingLotID uint) ([]SensorResponse, error) // Cambia el retorno al response struct
+	ListSensorsByParkingLot(parkingLotID uint) ([]SensorResponse, error)
 }
 
 type SensorUseCase struct {
@@ -20,7 +20,7 @@ type SensorUseCase struct {
 
 type CreateSensorRequest struct {
 	ParkingLotID  uint   `json:"parking_lot_id"`
-	Esp32DeviceID uint64 `json:"esp32_device_id"`
+	Esp32DeviceID uint   `json:"esp32_device_id"`
 	Status        string `json:"status"`
 }
 
@@ -31,7 +31,7 @@ type UpdateSensorRequest struct {
 type SensorResponse struct {
 	ID            uint   `json:"id"`
 	ParkingLotID  uint   `json:"parking_lot_id"`
-	Esp32DeviceID uint64 `json:"esp32_device_id"`
+	Esp32DeviceID uint   `json:"esp32_device_id"`
 	Status        string `json:"status"`
 }
 
@@ -59,9 +59,10 @@ func (uc *SensorUseCase) GetSensor(sensorID uint) (*SensorResponse, error) {
 	}
 
 	response := &SensorResponse{
-		ID:           sensor.ID,
-		ParkingLotID: sensor.ParkingLotID,
-		Status:       sensor.Status,
+		ID:            sensor.ID,
+		ParkingLotID:  sensor.ParkingLotID,
+		Esp32DeviceID: sensor.Esp32DeviceID,
+		Status:        sensor.Status,
 	}
 
 	return response, nil
@@ -91,9 +92,10 @@ func (uc *SensorUseCase) ListSensorsByParkingLot(parkingLotID uint) ([]SensorRes
 	var response []SensorResponse
 	for _, sensor := range sensors {
 		response = append(response, SensorResponse{
-			ID:           sensor.ID,
-			ParkingLotID: sensor.ParkingLotID,
-			Status:       sensor.Status,
+			ID:            sensor.ID,
+			ParkingLotID:  sensor.ParkingLotID,
+			Esp32DeviceID: sensor.Esp32DeviceID,
+			Status:        sensor.Status,
 		})
 	}
 
