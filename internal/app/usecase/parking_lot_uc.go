@@ -122,15 +122,13 @@ func (uc *ParkingLotUseCase) ListParkingLots() ([]ParkingLotResponse, error) {
 		}
 
 		var availableSpaces uint
-		if len(sensors) == 0 {
-			continue
-		}
 
 		for _, sensor := range sensors {
 			if sensor.Status == "free" {
 				availableSpaces++
 			}
 		}
+
 		response = append(response, ParkingLotResponse{
 			ID:              lot.ID,
 			Name:            lot.Name,
