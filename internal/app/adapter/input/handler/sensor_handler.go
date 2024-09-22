@@ -85,11 +85,18 @@ func (h *SensorHandler) DeleteSensor(c *gin.Context) {
 }
 
 func (h *SensorHandler) ListSensors(c *gin.Context) {
-	parkingID, err := strconv.ParseUint(c.Param("parkingID"), 10, 32)
+	parkingIDStr := c.Query("parkingID")
+	parkingID, err := strconv.ParseUint(parkingIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid parkingID"})
+		return
+	}
+
 	sensors, err := h.SensorUseCase.ListSensorsByParkingLot(uint(parkingID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	c.JSON(http.StatusOK, sensors)
 }
