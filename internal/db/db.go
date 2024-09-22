@@ -2,20 +2,31 @@ package db
 
 import (
 	"log"
+	"time"
 
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-
-	"gorm.io/driver/sqlite"
 )
 
 var DB *gorm.DB
 
 func ConnectDatabase() {
-	var err error
-	// Conectar a la base de datos SQLite (se creará el archivo database.db si no existe)
-	DB, err = gorm.Open(sqlite.Open("database.db"), &gorm.Config{})
+	dsn := "host=localhost user=myuser password=mypassword dbname=parking_system_db port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}
 
+	sqlDB, err := database.DB()
+
+	if err != nil {
+		log.Fatal("Falied to get DB instance from GORM:", err)
+	}
+
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetConnMaxLifetime(time.Hour)
+
+	DB = database
 }
