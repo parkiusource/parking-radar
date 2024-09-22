@@ -15,7 +15,8 @@ func TestCreateParkingLot(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := mockgen.NewMockIParkingLotRepository(ctrl)
-	useCase := NewParkingLotUseCase(mockRepo)
+	sensorRepo := mockgen.NewMockISensorRepository(ctrl)
+	useCase := NewParkingLotUseCase(mockRepo, sensorRepo)
 
 	req := CreateParkingLotRequest{
 		Name:      "test Lot",

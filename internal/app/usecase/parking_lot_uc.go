@@ -42,9 +42,10 @@ type UpdateParkingLotRequest struct {
 	Longitude float64 `json:"longitude"`
 }
 
-func NewParkingLotUseCase(parkingLotRepo repository.IParkingLotRepository) IParkingLotUseCase {
+func NewParkingLotUseCase(parkingLotRepo repository.IParkingLotRepository, sensorRepository repository.ISensorRepository) IParkingLotUseCase {
 	return &ParkingLotUseCase{
 		ParkingLotRepository: parkingLotRepo,
+		SensorRepository:     sensorRepository,
 	}
 }
 

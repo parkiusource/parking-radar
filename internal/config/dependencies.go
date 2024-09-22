@@ -30,8 +30,9 @@ func setupUserHandler() *handler.UserHandler {
 }
 
 func setupParkingLotHandler() *handler.ParkingLotHandler {
+	sensorRepository := &db.SensorRepositoryImpl{DB: db2.DB}
 	parkingLotRepository := &db.ParkingLotRepositoryImpl{DB: db2.DB}
-	parkingLotUseCase := usecase.NewParkingLotUseCase(parkingLotRepository)
+	parkingLotUseCase := usecase.NewParkingLotUseCase(parkingLotRepository, sensorRepository)
 	return handler.NewParkingLotHandler(parkingLotUseCase)
 }
 
