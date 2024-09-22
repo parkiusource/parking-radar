@@ -5,6 +5,7 @@ import (
 	"github.com/CamiloLeonP/parking-radar/internal/app/repository"
 )
 
+//go:generate mockgen -source=./parking_lot_uc.go -destination=./../../test/parking/mocks/mock_parking_lot_uc.go -package=mockgen
 type IParkingLotUseCase interface {
 	CreateParkingLot(req CreateParkingLotRequest) error
 	GetParkingLot(parkingLotID uint) (*ParkingLotResponse, error)
@@ -118,13 +119,17 @@ func (uc *ParkingLotUseCase) ListParkingLots() ([]ParkingLotResponse, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		var availableSpaces uint
+		if len(sensors) == 0 {
+			continue
+		}
+
 		for _, sensor := range sensors {
 			if sensor.Status == "free" {
 				availableSpaces++
 			}
 		}
-
 		response = append(response, ParkingLotResponse{
 			ID:              lot.ID,
 			Name:            lot.Name,

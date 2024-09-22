@@ -2,6 +2,7 @@ package repository
 
 import "github.com/CamiloLeonP/parking-radar/internal/app/domain"
 
+//go:generate mockgen -source=./sensor_repository.go -destination=./../../test/shared/mocks/mock_sensor_repository.go -package=mockgen
 type ISensorRepository interface {
 	Create(sensor *domain.Sensor) error
 	GetByID(id uint) (*domain.Sensor, error)

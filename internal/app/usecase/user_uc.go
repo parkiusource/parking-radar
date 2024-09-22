@@ -8,7 +8,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-//go:generate mockgen -source=./user_uc.go -destination=mocks/mock_user_uc.go -package=mocks
+//go:generate mockgen -source=./user_uc.go -destination=./../../test/parking/mocks/mock_user_uc.go -package=mocks
 type IUserUseCase interface {
 	Register(username, password, email string) (*domain.User, error)
 	FindByID(id uint) (*domain.User, error)

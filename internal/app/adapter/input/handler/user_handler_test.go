@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/CamiloLeonP/parking-radar/internal/test/parking/mocks"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/CamiloLeonP/parking-radar/internal/app/domain"
-	"github.com/CamiloLeonP/parking-radar/internal/app/usecase/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -31,7 +31,7 @@ func setupUserHandler(mockUseCase *mocks.MockIUserUseCase) *gin.Engine {
 	return r
 }
 
-// Test para el registro de usuario
+// test para el registro de usuario
 func TestRegisterUser(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -55,7 +55,7 @@ func TestRegisterUser(t *testing.T) {
 	assert.Equal(t, mockUser, &responseUser)
 }
 
-// Test para obtener un usuario por ID
+// test para obtener un usuario por ID
 func TestGetUserByID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -77,7 +77,7 @@ func TestGetUserByID(t *testing.T) {
 	assert.Equal(t, mockUser, &responseUser)
 }
 
-// Test para actualizar un usuario
+// test para actualizar un usuario
 func TestUpdateUser(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -101,7 +101,7 @@ func TestUpdateUser(t *testing.T) {
 	assert.Equal(t, mockUser, &responseUser)
 }
 
-// Test para eliminar un usuario
+// test para eliminar un usuario
 func TestDeleteUser(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -122,7 +122,7 @@ func TestDeleteUser(t *testing.T) {
 	assert.Equal(t, "User deleted", response["status"])
 }
 
-// Test para error en el registro de usuario
+// test para error en el registro de usuario
 func TestRegisterUser_Error(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -145,7 +145,7 @@ func TestRegisterUser_Error(t *testing.T) {
 	assert.Equal(t, "Failed to register user", response["error"])
 }
 
-// Test para error en obtener usuario por ID
+// test para error en obtener usuario por ID
 func TestGetUserByID_Error(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -166,7 +166,7 @@ func TestGetUserByID_Error(t *testing.T) {
 	assert.Equal(t, "User not found", response["error"])
 }
 
-// Test para error en actualizar usuario
+// test para error en actualizar usuario
 func TestUpdateUser_Error(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -189,7 +189,7 @@ func TestUpdateUser_Error(t *testing.T) {
 	assert.Equal(t, "Failed to update user", response["error"])
 }
 
-// Test para error en eliminar usuario
+// test para error en eliminar usuario
 func TestDeleteUser_Error(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
