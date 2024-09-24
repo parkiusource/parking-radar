@@ -37,7 +37,7 @@ func SetupRouter() *gin.Engine {
 		sensors.POST("/", handlers.SensorHandler.CreateSensor)
 		sensors.GET("/", handlers.SensorHandler.ListSensors)
 		sensors.GET("/:id", handlers.SensorHandler.GetSensor)
-		sensors.PUT("/", handlers.SensorHandler.UpdateSensor)
+		sensors.PUT("/:sensor_number", handlers.SensorHandler.UpdateSensor)
 		sensors.DELETE("/:id", handlers.SensorHandler.DeleteSensor)
 	}
 
