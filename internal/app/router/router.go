@@ -37,14 +37,14 @@ func SetupRouter() *gin.Engine {
 		sensors.POST("/", handlers.SensorHandler.CreateSensor)
 		sensors.GET("/", handlers.SensorHandler.ListSensors)
 		sensors.GET("/:id", handlers.SensorHandler.GetSensor)
-		sensors.PUT("/:id", handlers.SensorHandler.UpdateSensor)
+		sensors.PUT("/", handlers.SensorHandler.UpdateSensor)
 		sensors.DELETE("/:id", handlers.SensorHandler.DeleteSensor)
 	}
 
 	// Rutas para ESP32 devices
 	esp32Devices := r.Group("/esp32-devices")
 	{
-		esp32Devices.POST("/", handlers.Esp32DeviceHandler.CreateEsp32Device)
+		esp32Devices.POST("/register", handlers.Esp32DeviceHandler.CreateEsp32Device)
 		esp32Devices.GET("/", handlers.Esp32DeviceHandler.ListEsp32Devices)
 		esp32Devices.GET("/:id", handlers.Esp32DeviceHandler.GetEsp32Device)
 		esp32Devices.PUT("/:id", handlers.Esp32DeviceHandler.UpdateEsp32Device)
