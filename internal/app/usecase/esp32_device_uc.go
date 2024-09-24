@@ -3,12 +3,13 @@ package usecase
 import (
 	"github.com/CamiloLeonP/parking-radar/internal/app/domain"
 	"github.com/CamiloLeonP/parking-radar/internal/app/repository"
+	"time"
 )
 
 type IEsp32DeviceUseCase interface {
 	CreateEsp32Device(req CreateEsp32DeviceRequest) error
 	GetEsp32Device(id uint64) (*Esp32DeviceResponse, error)
-	ListEsp32DevicesByIdentifier(identifier string) ([]domain.Esp32Device, error)
+	GetEsp32DeviceByIdentifier(identifier string) (*domain.Esp32Device, error)
 	UpdateEsp32Device(id uint64, req UpdateEsp32DeviceRequest) error
 	DeleteEsp32Device(id uint64) error
 	ListEsp32Devices() ([]domain.Esp32Device, error)
@@ -63,15 +64,15 @@ func (uc *Esp32DeviceUseCase) GetEsp32Device(id uint64) (*Esp32DeviceResponse, e
 	response := &Esp32DeviceResponse{
 		ID:                device.ID,
 		DeviceIdentifier:  device.DeviceIdentifier,
-		LastCommunication: device.LastCommunication.String(),
+		LastCommunication: device.LastCommunication.Format(time.RFC3339), // Formato ISO 8601
 		Sensors:           sensors,
 	}
 
 	return response, nil
 }
 
-func (uc *Esp32DeviceUseCase) ListEsp32DevicesByIdentifier(identifier string) ([]domain.Esp32Device, error) {
-	return uc.Esp32DeviceRepository.ListByDeviceIdentifier(identifier)
+func (uc *Esp32DeviceUseCase) GetEsp32DeviceByIdentifier(identifier string) (*domain.Esp32Device, error) {
+	return uc.Esp32DeviceRepository.GetByDeviceIdentifier(identifier)
 }
 
 func (uc *Esp32DeviceUseCase) UpdateEsp32Device(id uint64, req UpdateEsp32DeviceRequest) error {
@@ -90,5 +91,5 @@ func (uc *Esp32DeviceUseCase) DeleteEsp32Device(id uint64) error {
 }
 
 func (uc *Esp32DeviceUseCase) ListEsp32Devices() ([]domain.Esp32Device, error) {
-	return uc.Esp32DeviceRepository.ListByDeviceIdentifier("") // Asume que ListByDeviceIdentifier puede manejar una búsqueda vacía
+	return uc.Esp32DeviceRepository.ListAll()
 }

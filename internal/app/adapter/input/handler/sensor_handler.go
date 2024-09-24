@@ -54,13 +54,15 @@ func (h *SensorHandler) UpdateSensor(c *gin.Context) {
 		return
 	}
 
-	sensorID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	// Buscar el sensor usando el device identifier y el número del sensor
+	sensor, err := h.SensorUseCase.GetSensorByDeviceAndNumber(req.DeviceIdentifier, req.SensorNumber)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "sensor not found"})
 		return
 	}
 
-	err = h.SensorUseCase.UpdateSensor(uint(sensorID), req)
+	// Actualizar el sensor
+	err = h.SensorUseCase.UpdateSensor(sensor.ID, req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

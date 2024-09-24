@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	"github.com/CamiloLeonP/parking-radar/internal/app/domain"
 	"github.com/CamiloLeonP/parking-radar/internal/app/repository"
 )
@@ -11,6 +12,7 @@ type ISensorUseCase interface {
 	UpdateSensor(sensorID uint, req UpdateSensorRequest) error
 	DeleteSensor(sensorID uint) error
 	ListSensorsByParkingLot(parkingLotID uint) ([]SensorResponse, error)
+	GetSensorByDeviceAndNumber(deviceIdentifier string, sensorNumber int) (*SensorResponse, error)
 }
 
 type SensorUseCase struct {
@@ -19,13 +21,15 @@ type SensorUseCase struct {
 }
 
 type CreateSensorRequest struct {
-	ParkingLotID  uint   `json:"parking_lot_id"`
-	Esp32DeviceID uint   `json:"esp32_device_id"`
-	Status        string `json:"status"`
+	ParkingLotID     uint   `json:"parking_lot_id"`
+	DeviceIdentifier string `json:"device_identifier"` // Dirección MAC
+	Status           string `json:"status"`
 }
 
 type UpdateSensorRequest struct {
-	Status string `json:"status"`
+	Status           string `json:"status"`
+	DeviceIdentifier string `json:"device_identifier"`
+	SensorNumber     int    `json:"sensor_number"`
 }
 
 type SensorResponse struct {
@@ -43,9 +47,14 @@ func NewSensorUseCase(sensorRepo repository.ISensorRepository, esp32DeviceRepo r
 }
 
 func (uc *SensorUseCase) CreateSensor(req CreateSensorRequest) error {
+	device, err := uc.Esp32DeviceRepository.GetByDeviceIdentifier(req.DeviceIdentifier)
+	if err != nil {
+		return errors.New("device not found")
+	}
+
 	sensor := domain.Sensor{
 		ParkingLotID:  req.ParkingLotID,
-		Esp32DeviceID: req.Esp32DeviceID,
+		Esp32DeviceID: uint(device.ID),
 		Status:        req.Status,
 	}
 
@@ -75,7 +84,6 @@ func (uc *SensorUseCase) UpdateSensor(sensorID uint, req UpdateSensorRequest) er
 	}
 
 	sensor.Status = req.Status
-
 	return uc.SensorRepository.Update(sensor)
 }
 
@@ -97,6 +105,22 @@ func (uc *SensorUseCase) ListSensorsByParkingLot(parkingLotID uint) ([]SensorRes
 			Esp32DeviceID: sensor.Esp32DeviceID,
 			Status:        sensor.Status,
 		})
+	}
+
+	return response, nil
+}
+
+func (uc *SensorUseCase) GetSensorByDeviceAndNumber(deviceIdentifier string, sensorNumber int) (*SensorResponse, error) {
+	sensor, err := uc.SensorRepository.GetByDeviceAndNumber(deviceIdentifier, sensorNumber)
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SensorResponse{
+		ID:            sensor.ID,
+		ParkingLotID:  sensor.ParkingLotID,
+		Esp32DeviceID: sensor.Esp32DeviceID,
+		Status:        sensor.Status,
 	}
 
 	return response, nil

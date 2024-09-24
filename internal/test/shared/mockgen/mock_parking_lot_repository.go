@@ -34,7 +34,7 @@ func (m *MockIParkingLotRepository) EXPECT() *MockIParkingLotRepositoryMockRecor
 	return m.recorder
 }
 
-// Create mockgen base method.
+// Create mocks base method.
 func (m *MockIParkingLotRepository) Create(parkingLot *domain.ParkingLot) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", parkingLot)
@@ -48,7 +48,7 @@ func (mr *MockIParkingLotRepositoryMockRecorder) Create(parkingLot interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockIParkingLotRepository)(nil).Create), parkingLot)
 }
 
-// Delete mockgen base method.
+// Delete mocks base method.
 func (m *MockIParkingLotRepository) Delete(id uint) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Delete", id)
@@ -62,7 +62,7 @@ func (mr *MockIParkingLotRepositoryMockRecorder) Delete(id interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockIParkingLotRepository)(nil).Delete), id)
 }
 
-// GetByID mockgen base method.
+// GetByID mocks base method.
 func (m *MockIParkingLotRepository) GetByID(id uint) (*domain.ParkingLot, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByID", id)
@@ -77,7 +77,7 @@ func (mr *MockIParkingLotRepositoryMockRecorder) GetByID(id interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockIParkingLotRepository)(nil).GetByID), id)
 }
 
-// List mockgen base method.
+// List mocks base method.
 func (m *MockIParkingLotRepository) List() ([]domain.ParkingLot, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "List")
@@ -92,7 +92,7 @@ func (mr *MockIParkingLotRepositoryMockRecorder) List() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockIParkingLotRepository)(nil).List))
 }
 
-// Update mockgen base method.
+// Update mocks base method.
 func (m *MockIParkingLotRepository) Update(parkingLot *domain.ParkingLot) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", parkingLot)

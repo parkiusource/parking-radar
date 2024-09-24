@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"database/sql"
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -27,7 +29,18 @@ func (h *Esp32DeviceHandler) CreateEsp32Device(c *gin.Context) {
 		return
 	}
 
-	err := h.Esp32DeviceUseCase.CreateEsp32Device(req)
+	existingDevice, err := h.Esp32DeviceUseCase.GetEsp32DeviceByIdentifier(req.DeviceIdentifier)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if existingDevice != nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "device already registered"})
+		return
+	}
+
+	err = h.Esp32DeviceUseCase.CreateEsp32Device(req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

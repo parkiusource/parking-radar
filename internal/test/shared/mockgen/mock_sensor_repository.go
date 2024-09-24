@@ -34,7 +34,7 @@ func (m *MockISensorRepository) EXPECT() *MockISensorRepositoryMockRecorder {
 	return m.recorder
 }
 
-// Create mockgen base method.
+// Create mocks base method.
 func (m *MockISensorRepository) Create(sensor *domain.Sensor) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", sensor)
@@ -48,7 +48,7 @@ func (mr *MockISensorRepositoryMockRecorder) Create(sensor interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockISensorRepository)(nil).Create), sensor)
 }
 
-// Delete mockgen base method.
+// Delete mocks base method.
 func (m *MockISensorRepository) Delete(id uint) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Delete", id)
@@ -62,7 +62,22 @@ func (mr *MockISensorRepositoryMockRecorder) Delete(id interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockISensorRepository)(nil).Delete), id)
 }
 
-// GetByID mockgen base method.
+// GetByDeviceAndNumber mocks base method.
+func (m *MockISensorRepository) GetByDeviceAndNumber(deviceIdentifier string, sensorNumber int) (*domain.Sensor, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByDeviceAndNumber", deviceIdentifier, sensorNumber)
+	ret0, _ := ret[0].(*domain.Sensor)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByDeviceAndNumber indicates an expected call of GetByDeviceAndNumber.
+func (mr *MockISensorRepositoryMockRecorder) GetByDeviceAndNumber(deviceIdentifier, sensorNumber interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByDeviceAndNumber", reflect.TypeOf((*MockISensorRepository)(nil).GetByDeviceAndNumber), deviceIdentifier, sensorNumber)
+}
+
+// GetByID mocks base method.
 func (m *MockISensorRepository) GetByID(id uint) (*domain.Sensor, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByID", id)
@@ -77,7 +92,7 @@ func (mr *MockISensorRepositoryMockRecorder) GetByID(id interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockISensorRepository)(nil).GetByID), id)
 }
 
-// ListByEsp32DeviceID mockgen base method.
+// ListByEsp32DeviceID mocks base method.
 func (m *MockISensorRepository) ListByEsp32DeviceID(esp32DeviceID uint64) ([]domain.Sensor, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListByEsp32DeviceID", esp32DeviceID)
@@ -92,7 +107,7 @@ func (mr *MockISensorRepositoryMockRecorder) ListByEsp32DeviceID(esp32DeviceID i
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListByEsp32DeviceID", reflect.TypeOf((*MockISensorRepository)(nil).ListByEsp32DeviceID), esp32DeviceID)
 }
 
-// ListByParkingLot mockgen base method.
+// ListByParkingLot mocks base method.
 func (m *MockISensorRepository) ListByParkingLot(parkingLotID uint) ([]domain.Sensor, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListByParkingLot", parkingLotID)
@@ -107,7 +122,7 @@ func (mr *MockISensorRepositoryMockRecorder) ListByParkingLot(parkingLotID inter
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListByParkingLot", reflect.TypeOf((*MockISensorRepository)(nil).ListByParkingLot), parkingLotID)
 }
 
-// Update mockgen base method.
+// Update mocks base method.
 func (m *MockISensorRepository) Update(sensor *domain.Sensor) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", sensor)

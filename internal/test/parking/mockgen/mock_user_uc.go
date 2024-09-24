@@ -2,7 +2,7 @@
 // Source: ./user_uc.go
 
 // Package mocks is a generated GoMock package.
-package mocks
+package mockgen
 
 import (
 	reflect "reflect"

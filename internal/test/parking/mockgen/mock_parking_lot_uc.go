@@ -34,7 +34,7 @@ func (m *MockIParkingLotUseCase) EXPECT() *MockIParkingLotUseCaseMockRecorder {
 	return m.recorder
 }
 
-// CreateParkingLot mockgen base method.
+// CreateParkingLot mocks base method.
 func (m *MockIParkingLotUseCase) CreateParkingLot(req usecase.CreateParkingLotRequest) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateParkingLot", req)
@@ -48,7 +48,7 @@ func (mr *MockIParkingLotUseCaseMockRecorder) CreateParkingLot(req interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateParkingLot", reflect.TypeOf((*MockIParkingLotUseCase)(nil).CreateParkingLot), req)
 }
 
-// DeleteParkingLot mockgen base method.
+// DeleteParkingLot mocks base method.
 func (m *MockIParkingLotUseCase) DeleteParkingLot(parkingLotID uint) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteParkingLot", parkingLotID)
@@ -62,7 +62,7 @@ func (mr *MockIParkingLotUseCaseMockRecorder) DeleteParkingLot(parkingLotID inte
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteParkingLot", reflect.TypeOf((*MockIParkingLotUseCase)(nil).DeleteParkingLot), parkingLotID)
 }
 
-// GetParkingLot mockgen base method.
+// GetParkingLot mocks base method.
 func (m *MockIParkingLotUseCase) GetParkingLot(parkingLotID uint) (*usecase.ParkingLotResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetParkingLot", parkingLotID)
@@ -77,7 +77,7 @@ func (mr *MockIParkingLotUseCaseMockRecorder) GetParkingLot(parkingLotID interfa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParkingLot", reflect.TypeOf((*MockIParkingLotUseCase)(nil).GetParkingLot), parkingLotID)
 }
 
-// ListParkingLots mockgen base method.
+// ListParkingLots mocks base method.
 func (m *MockIParkingLotUseCase) ListParkingLots() ([]usecase.ParkingLotResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListParkingLots")
@@ -92,7 +92,7 @@ func (mr *MockIParkingLotUseCaseMockRecorder) ListParkingLots() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListParkingLots", reflect.TypeOf((*MockIParkingLotUseCase)(nil).ListParkingLots))
 }
 
-// UpdateParkingLot mockgen base method.
+// UpdateParkingLot mocks base method.
 func (m *MockIParkingLotUseCase) UpdateParkingLot(parkingLotID uint, req usecase.UpdateParkingLotRequest) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateParkingLot", parkingLotID, req)
