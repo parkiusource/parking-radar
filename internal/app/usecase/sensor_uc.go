@@ -34,10 +34,10 @@ type UpdateSensorRequest struct {
 }
 
 type SensorResponse struct {
-	ID            uint   `json:"id"`
-	ParkingLotID  uint   `json:"parking_lot_id"`
-	Esp32DeviceID uint   `json:"esp32_device_id"`
-	Status        string `json:"status"`
+	ID               uint   `json:"id"`
+	ParkingLotID     uint   `json:"parking_lot_id"`
+	DeviceIdentifier string `json:"device_identifier"`
+	Status           string `json:"status"`
 }
 
 func NewSensorUseCase(sensorRepo repository.ISensorRepository, esp32DeviceRepo repository.IEsp32DeviceRepository) ISensorUseCase {
@@ -58,7 +58,7 @@ func (uc *SensorUseCase) CreateSensor(req CreateSensorRequest) error {
 		Esp32DeviceID:    uint(device.ID),
 		Status:           req.Status,
 		SensorNumber:     req.SensorNumber,
-		DeviceIdentifier: req.DeviceIdentifier,
+		DeviceIdentifier: device.DeviceIdentifier,
 	}
 
 	return uc.SensorRepository.Create(&sensor)
@@ -71,10 +71,10 @@ func (uc *SensorUseCase) GetSensor(sensorID uint) (*SensorResponse, error) {
 	}
 
 	response := &SensorResponse{
-		ID:            sensor.ID,
-		ParkingLotID:  sensor.ParkingLotID,
-		Esp32DeviceID: sensor.Esp32DeviceID,
-		Status:        sensor.Status,
+		ID:               sensor.ID,
+		ParkingLotID:     sensor.ParkingLotID,
+		DeviceIdentifier: sensor.DeviceIdentifier,
+		Status:           sensor.Status,
 	}
 
 	return response, nil
@@ -103,10 +103,10 @@ func (uc *SensorUseCase) ListSensorsByParkingLot(parkingLotID uint) ([]SensorRes
 	var response []SensorResponse
 	for _, sensor := range sensors {
 		response = append(response, SensorResponse{
-			ID:            sensor.ID,
-			ParkingLotID:  sensor.ParkingLotID,
-			Esp32DeviceID: sensor.Esp32DeviceID,
-			Status:        sensor.Status,
+			ID:               sensor.ID,
+			ParkingLotID:     sensor.ParkingLotID,
+			DeviceIdentifier: sensor.DeviceIdentifier,
+			Status:           sensor.Status,
 		})
 	}
 
@@ -120,10 +120,10 @@ func (uc *SensorUseCase) GetSensorByDeviceAndNumber(deviceIdentifier string, sen
 	}
 
 	response := &SensorResponse{
-		ID:            sensor.ID,
-		ParkingLotID:  sensor.ParkingLotID,
-		Esp32DeviceID: sensor.Esp32DeviceID,
-		Status:        sensor.Status,
+		ID:               sensor.ID,
+		ParkingLotID:     sensor.ParkingLotID,
+		DeviceIdentifier: sensor.DeviceIdentifier,
+		Status:           sensor.Status,
 	}
 
 	return response, nil
