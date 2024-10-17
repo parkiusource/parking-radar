@@ -14,6 +14,8 @@ func SetupRouter() *gin.Engine {
 
 	handlers := config.SetupDependencies()
 
+	r.GET("/ws", handlers.WebSocketHandler.HandleConnection)
+
 	// Rutas para usuarios
 	users := r.Group("/users")
 	{

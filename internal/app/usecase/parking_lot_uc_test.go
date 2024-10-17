@@ -27,7 +27,7 @@ func TestCreateParkingLot(t *testing.T) {
 
 	mockRepo.EXPECT().Create(gomock.Any()).Return(nil)
 
-	err := useCase.CreateParkingLot(req)
+	_, err := useCase.CreateParkingLot(req)
 	assert.NoError(t, err)
 }
 

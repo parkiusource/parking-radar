@@ -5,6 +5,7 @@ go 1.22.3
 require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/golang/mock v1.6.0
+	github.com/gorilla/websocket v1.5.3
 	github.com/stretchr/testify v1.9.0
 	gorm.io/gorm v1.25.10
 )

@@ -35,11 +35,12 @@ func (m *MockIParkingLotUseCase) EXPECT() *MockIParkingLotUseCaseMockRecorder {
 }
 
 // CreateParkingLot mocks base method.
-func (m *MockIParkingLotUseCase) CreateParkingLot(req usecase.CreateParkingLotRequest) error {
+func (m *MockIParkingLotUseCase) CreateParkingLot(req usecase.CreateParkingLotRequest) (*usecase.ParkingLotResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateParkingLot", req)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(*usecase.ParkingLotResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // CreateParkingLot indicates an expected call of CreateParkingLot.

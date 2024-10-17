@@ -7,7 +7,7 @@ import (
 
 //go:generate mockgen -source=./parking_lot_uc.go -destination=./../../test/parking/mocks/mock_parking_lot_uc.go -package=mockgen
 type IParkingLotUseCase interface {
-	CreateParkingLot(req CreateParkingLotRequest) error
+	CreateParkingLot(req CreateParkingLotRequest) (*ParkingLotResponse, error)
 	GetParkingLot(parkingLotID uint) (*ParkingLotResponse, error)
 	UpdateParkingLot(parkingLotID uint, req UpdateParkingLotRequest) error
 	DeleteParkingLot(parkingLotID uint) error
@@ -49,7 +49,7 @@ func NewParkingLotUseCase(parkingLotRepo repository.IParkingLotRepository, senso
 	}
 }
 
-func (uc *ParkingLotUseCase) CreateParkingLot(req CreateParkingLotRequest) error {
+func (uc *ParkingLotUseCase) CreateParkingLot(req CreateParkingLotRequest) (*ParkingLotResponse, error) {
 	parkingLot := domain.ParkingLot{
 		Name:      req.Name,
 		Address:   req.Address,
@@ -57,7 +57,20 @@ func (uc *ParkingLotUseCase) CreateParkingLot(req CreateParkingLotRequest) error
 		Longitude: req.Longitude,
 	}
 
-	return uc.ParkingLotRepository.Create(&parkingLot)
+	err := uc.ParkingLotRepository.Create(&parkingLot)
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ParkingLotResponse{
+		ID:        parkingLot.ID,
+		Name:      parkingLot.Name,
+		Address:   parkingLot.Address,
+		Latitude:  parkingLot.Latitude,
+		Longitude: parkingLot.Longitude,
+	}
+
+	return response, nil
 }
 
 func (uc *ParkingLotUseCase) GetParkingLot(parkingLotID uint) (*ParkingLotResponse, error) {
