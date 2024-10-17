@@ -4,20 +4,13 @@ import (
 	"github.com/CamiloLeonP/parking-radar/internal/app/adapter/input/handler"
 	"github.com/CamiloLeonP/parking-radar/internal/config"
 	middlewares "github.com/CamiloLeonP/parking-radar/internal/middleware"
-	"os"
-
 	"github.com/gin-gonic/gin"
 )
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
-	allowedOrigin := os.Getenv("ALLOWED_ORIGIN")
-	if allowedOrigin == "" {
-		allowedOrigin = "https://parking-radar-frontend.vercel.app"
-	}
-
-	r.Use(middlewares.CORSMiddleware(allowedOrigin))
+	r.Use(middlewares.CORSMiddleware())
 
 	handlers := config.SetupDependencies()
 
