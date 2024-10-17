@@ -64,10 +64,13 @@ func (wsh *WebSocketHandler) HandleConnection(c *gin.Context) {
 		}
 
 		// Manejar mensajes de ping del cliente
-		if messageType == websocket.TextMessage && string(message) == "ping" {
+		if messageType == websocket.TextMessage && string(message) == `{"type":"ping"}` {
 			log.Println("Received ping, sending pong")
-			if err := conn.WriteMessage(websocket.PongMessage, nil); err != nil {
-				log.Println("Failed to send pong:", err)
+
+			// Responder con un "pong"
+			response := `{"type":"pong"}`
+			if err := conn.WriteMessage(websocket.TextMessage, []byte(response)); err != nil {
+				log.Println("Error sending pong:", err)
 				wsh.hub.RemoveClient(conn)
 				break
 			}
