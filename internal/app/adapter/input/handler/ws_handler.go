@@ -32,15 +32,18 @@ func (wsh *WebSocketHandler) HandleConnection(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to upgrade to WebSocket"})
 		return
 	}
-	defer func(conn *websocket.Conn) {
+	defer func() {
 		if err := conn.Close(); err != nil {
 			log.Println("Error closing WebSocket connection:", err)
 		}
-	}(conn)
+	}()
 
 	log.Println("New WebSocket connection established")
 
-	// Enviar mensaje de bienvenida en formato JSON
+	// Agregar al cliente al hub
+	wsh.hub.AddClient(conn)
+
+	// Enviar mensaje de bienvenida
 	welcomeMessage := gin.H{
 		"type":    "welcome",
 		"payload": gin.H{"message": "Welcome to the WebSocket server for parking radar"},
@@ -51,17 +54,27 @@ func (wsh *WebSocketHandler) HandleConnection(c *gin.Context) {
 		return
 	}
 
-	// Agregar al cliente al hub
-	wsh.hub.AddClient(conn)
-
 	// Escuchar mensajes entrantes
 	for {
-		_, message, err := conn.ReadMessage()
+		messageType, message, err := conn.ReadMessage()
 		if err != nil {
 			log.Println("WebSocket connection error:", err)
 			wsh.hub.RemoveClient(conn)
 			break
 		}
+
+		// Manejar mensajes de ping del cliente
+		if messageType == websocket.PingMessage {
+			log.Println("Received ping, sending pong")
+			if err := conn.WriteMessage(websocket.PongMessage, nil); err != nil {
+				log.Println("Failed to send pong:", err)
+				wsh.hub.RemoveClient(conn)
+				break
+			}
+			continue
+		}
+
+		// Loguear otros mensajes recibidos
 		log.Printf("Received message: %s\n", message)
 	}
 }
