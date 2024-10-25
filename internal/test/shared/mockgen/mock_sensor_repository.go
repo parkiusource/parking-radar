@@ -122,6 +122,21 @@ func (mr *MockISensorRepositoryMockRecorder) ListByParkingLot(parkingLotID inter
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListByParkingLot", reflect.TypeOf((*MockISensorRepository)(nil).ListByParkingLot), parkingLotID)
 }
 
+// ListGroupedByParkingLot mocks base method.
+func (m *MockISensorRepository) ListGroupedByParkingLot() (map[uint]uint, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListGroupedByParkingLot")
+	ret0, _ := ret[0].(map[uint]uint)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListGroupedByParkingLot indicates an expected call of ListGroupedByParkingLot.
+func (mr *MockISensorRepositoryMockRecorder) ListGroupedByParkingLot() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListGroupedByParkingLot", reflect.TypeOf((*MockISensorRepository)(nil).ListGroupedByParkingLot))
+}
+
 // Update mocks base method.
 func (m *MockISensorRepository) Update(sensor *domain.Sensor) error {
 	m.ctrl.T.Helper()

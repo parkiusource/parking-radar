@@ -31,6 +31,32 @@ func (r *SensorRepositoryImpl) ListByParkingLot(parkingLotID uint) ([]domain.Sen
 	return sensors, nil
 }
 
+func (r *SensorRepositoryImpl) ListGroupedByParkingLot() (map[uint]uint, error) {
+	type Result struct {
+		ParkingLotID    uint
+		AvailableSpaces uint
+	}
+
+	var results []Result
+
+	err := r.DB.Table("sensors").
+		Select("parking_lot_id, COUNT(*) AS available_spaces").
+		Where("status = ?", "free").
+		Group("parking_lot_id").
+		Find(&results).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	sensorMap := make(map[uint]uint)
+	for _, result := range results {
+		sensorMap[result.ParkingLotID] = result.AvailableSpaces
+	}
+
+	return sensorMap, nil
+}
+
 func (r *SensorRepositoryImpl) ListByEsp32DeviceID(esp32DeviceID uint64) ([]domain.Sensor, error) {
 	var sensors []domain.Sensor
 	if err := r.DB.Where("esp32_device_id = ?", esp32DeviceID).Find(&sensors).Error; err != nil {

@@ -127,20 +127,14 @@ func (uc *ParkingLotUseCase) ListParkingLots() ([]ParkingLotResponse, error) {
 		return nil, err
 	}
 
+	sensorMap, err := uc.SensorRepository.ListGroupedByParkingLot()
+	if err != nil {
+		return nil, err
+	}
+
 	var response []ParkingLotResponse
 	for _, lot := range parkingLots {
-		sensors, err := uc.SensorRepository.ListByParkingLot(lot.ID)
-		if err != nil {
-			return nil, err
-		}
-
-		var availableSpaces uint
-
-		for _, sensor := range sensors {
-			if sensor.Status == "free" {
-				availableSpaces++
-			}
-		}
+		availableSpaces := sensorMap[lot.ID]
 
 		response = append(response, ParkingLotResponse{
 			ID:              lot.ID,
