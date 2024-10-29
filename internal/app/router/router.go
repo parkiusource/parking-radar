@@ -27,13 +27,14 @@ func SetupRouter() *gin.Engine {
 	}
 
 	// Routes for parking lots
+
 	parkingLots := r.Group("/parking-lots")
 	parkingLots.Use(middlewares.AuthMiddleware("admin_local", "admin_global"))
+	r.GET("/", handlers.ParkingLotHandler.ListParkingLots)
 	{
 		parkingLots.POST("/", handlers.ParkingLotHandler.CreateParkingLot)
 		parkingLots.PUT("/:id", handlers.ParkingLotHandler.UpdateParkingLot)
 		parkingLots.DELETE("/:id", handlers.ParkingLotHandler.DeleteParkingLot)
-		parkingLots.GET("/", handlers.ParkingLotHandler.ListParkingLots)
 		parkingLots.GET("/:id", handlers.ParkingLotHandler.GetParkingLot)
 	}
 

@@ -121,8 +121,8 @@ func TestUpdateParkingLot(t *testing.T) {
 	r, wsHub := setupParkingLotHandler(mockUseCase)
 	defer wsHub.Stop()
 
-	mockUseCase.EXPECT().GetParkingLotWithOwnership(uint(1), "auth0|672048d1f0cb0992821786c5").Return(&usecase.ParkingLotResponse{}, nil).Times(0)
-	mockUseCase.EXPECT().UpdateParkingLot(uint(1), gomock.Any(), "auth0|672048d1f0cb0992821786c5").Return(nil)
+	mockUseCase.EXPECT().GetParkingLotWithOwnership(uint(1), "auth0|6721363081b8547d3f95a976").Return(&usecase.ParkingLotResponse{}, nil).Times(0)
+	mockUseCase.EXPECT().UpdateParkingLot(uint(1), gomock.Any(), "auth0|6721363081b8547d3f95a976").Return(nil)
 
 	w := httptest.NewRecorder()
 	body, _ := json.Marshal(usecase.UpdateParkingLotRequest{
@@ -152,8 +152,8 @@ func TestDeleteParkingLot(t *testing.T) {
 	r, wsHub := setupParkingLotHandler(mockUseCase)
 	defer wsHub.Stop()
 
-	mockUseCase.EXPECT().GetParkingLotWithOwnership(uint(1), "auth0|672048d1f0cb0992821786c5").Return(&usecase.ParkingLotResponse{}, nil).Times(0)
-	mockUseCase.EXPECT().DeleteParkingLot(uint(1), "auth0|672048d1f0cb0992821786c5").Return(nil)
+	mockUseCase.EXPECT().GetParkingLotWithOwnership(uint(1), "auth0|6721363081b8547d3f95a976").Return(&usecase.ParkingLotResponse{}, nil).Times(0)
+	mockUseCase.EXPECT().DeleteParkingLot(uint(1), "auth0|6721363081b8547d3f95a976").Return(nil)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("DELETE", "/parkinglots/1", nil)
