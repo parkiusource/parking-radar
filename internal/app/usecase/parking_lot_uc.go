@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	"github.com/CamiloLeonP/parking-radar/internal/app/domain"
 	"github.com/CamiloLeonP/parking-radar/internal/app/repository"
 )
@@ -9,8 +10,9 @@ import (
 type IParkingLotUseCase interface {
 	CreateParkingLot(req CreateParkingLotRequest) (*ParkingLotResponse, error)
 	GetParkingLot(parkingLotID uint) (*ParkingLotResponse, error)
-	UpdateParkingLot(parkingLotID uint, req UpdateParkingLotRequest) error
-	DeleteParkingLot(parkingLotID uint) error
+	GetParkingLotWithOwnership(parkingLotID uint, adminID string) (*ParkingLotResponse, error)
+	UpdateParkingLot(parkingLotID uint, req UpdateParkingLotRequest, adminID string) error
+	DeleteParkingLot(parkingLotID uint, adminID string) error
 	ListParkingLots() ([]ParkingLotResponse, error)
 }
 
@@ -33,6 +35,7 @@ type CreateParkingLotRequest struct {
 	Address   string  `json:"address"`
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
+	AdminID   string  `json:"admin_id"`
 }
 
 type UpdateParkingLotRequest struct {
@@ -42,6 +45,7 @@ type UpdateParkingLotRequest struct {
 	Longitude float64 `json:"longitude"`
 }
 
+// NewParkingLotUseCase creates a new instance of ParkingLotUseCase.
 func NewParkingLotUseCase(parkingLotRepo repository.IParkingLotRepository, sensorRepository repository.ISensorRepository) IParkingLotUseCase {
 	return &ParkingLotUseCase{
 		ParkingLotRepository: parkingLotRepo,
@@ -49,30 +53,30 @@ func NewParkingLotUseCase(parkingLotRepo repository.IParkingLotRepository, senso
 	}
 }
 
+// CreateParkingLot creates a new parking lot.
 func (uc *ParkingLotUseCase) CreateParkingLot(req CreateParkingLotRequest) (*ParkingLotResponse, error) {
 	parkingLot := domain.ParkingLot{
 		Name:      req.Name,
 		Address:   req.Address,
 		Latitude:  req.Latitude,
 		Longitude: req.Longitude,
+		AdminID:   req.AdminID,
 	}
 
-	err := uc.ParkingLotRepository.Create(&parkingLot)
-	if err != nil {
+	if err := uc.ParkingLotRepository.Create(&parkingLot); err != nil {
 		return nil, err
 	}
 
-	response := &ParkingLotResponse{
+	return &ParkingLotResponse{
 		ID:        parkingLot.ID,
 		Name:      parkingLot.Name,
 		Address:   parkingLot.Address,
 		Latitude:  parkingLot.Latitude,
 		Longitude: parkingLot.Longitude,
-	}
-
-	return response, nil
+	}, nil
 }
 
+// GetParkingLot retrieves a parking lot by ID.
 func (uc *ParkingLotUseCase) GetParkingLot(parkingLotID uint) (*ParkingLotResponse, error) {
 	parkingLot, err := uc.ParkingLotRepository.GetByID(parkingLotID)
 	if err != nil {
@@ -84,27 +88,45 @@ func (uc *ParkingLotUseCase) GetParkingLot(parkingLotID uint) (*ParkingLotRespon
 		return nil, err
 	}
 
-	var availableSpaces uint
-	for _, sensor := range sensors {
-		if sensor.Status == "free" {
-			availableSpaces++
-		}
-	}
+	availableSpaces := countAvailableSpaces(sensors)
 
-	response := &ParkingLotResponse{
+	return &ParkingLotResponse{
 		ID:              parkingLot.ID,
 		Name:            parkingLot.Name,
 		Address:         parkingLot.Address,
 		Latitude:        parkingLot.Latitude,
 		Longitude:       parkingLot.Longitude,
 		AvailableSpaces: availableSpaces,
-	}
-
-	return response, nil
+	}, nil
 }
 
-func (uc *ParkingLotUseCase) UpdateParkingLot(parkingLotID uint, req UpdateParkingLotRequest) error {
-	parkingLot, err := uc.ParkingLotRepository.GetByID(parkingLotID)
+// GetParkingLotWithOwnership retrieves a parking lot if it belongs to the admin.
+func (uc *ParkingLotUseCase) GetParkingLotWithOwnership(parkingLotID uint, adminID string) (*ParkingLotResponse, error) {
+	parkingLot, err := uc.ParkingLotRepository.GetByIDWithAdmin(parkingLotID, adminID)
+	if err != nil {
+		return nil, err
+	}
+
+	sensors, err := uc.SensorRepository.ListByParkingLot(parkingLotID)
+	if err != nil {
+		return nil, err
+	}
+
+	availableSpaces := countAvailableSpaces(sensors)
+
+	return &ParkingLotResponse{
+		ID:              parkingLot.ID,
+		Name:            parkingLot.Name,
+		Address:         parkingLot.Address,
+		Latitude:        parkingLot.Latitude,
+		Longitude:       parkingLot.Longitude,
+		AvailableSpaces: availableSpaces,
+	}, nil
+}
+
+// UpdateParkingLot updates a parking lot.
+func (uc *ParkingLotUseCase) UpdateParkingLot(parkingLotID uint, req UpdateParkingLotRequest, adminID string) error {
+	parkingLot, err := uc.ParkingLotRepository.GetByIDWithAdmin(parkingLotID, adminID)
 	if err != nil {
 		return err
 	}
@@ -117,10 +139,15 @@ func (uc *ParkingLotUseCase) UpdateParkingLot(parkingLotID uint, req UpdateParki
 	return uc.ParkingLotRepository.Update(parkingLot)
 }
 
-func (uc *ParkingLotUseCase) DeleteParkingLot(parkingLotID uint) error {
+// DeleteParkingLot deletes a parking lot with ownership validation.
+func (uc *ParkingLotUseCase) DeleteParkingLot(parkingLotID uint, adminID string) error {
+	if _, err := uc.ParkingLotRepository.GetByIDWithAdmin(parkingLotID, adminID); err != nil {
+		return errors.New("forbidden: you don't have access to this parking lot")
+	}
 	return uc.ParkingLotRepository.Delete(parkingLotID)
 }
 
+// ListParkingLots retrieves all parking lots with their available spaces.
 func (uc *ParkingLotUseCase) ListParkingLots() ([]ParkingLotResponse, error) {
 	parkingLots, err := uc.ParkingLotRepository.List()
 	if err != nil {
@@ -147,4 +174,15 @@ func (uc *ParkingLotUseCase) ListParkingLots() ([]ParkingLotResponse, error) {
 	}
 
 	return response, nil
+}
+
+// Helper function to count available spaces.
+func countAvailableSpaces(sensors []domain.Sensor) uint {
+	var availableSpaces uint
+	for _, sensor := range sensors {
+		if sensor.Status == "free" {
+			availableSpaces++
+		}
+	}
+	return availableSpaces
 }
