@@ -50,17 +50,17 @@ func (mr *MockIParkingLotUseCaseMockRecorder) CreateParkingLot(req interface{}) 
 }
 
 // DeleteParkingLot mocks base method.
-func (m *MockIParkingLotUseCase) DeleteParkingLot(parkingLotID uint) error {
+func (m *MockIParkingLotUseCase) DeleteParkingLot(parkingLotID uint, adminID string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteParkingLot", parkingLotID)
+	ret := m.ctrl.Call(m, "DeleteParkingLot", parkingLotID, adminID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteParkingLot indicates an expected call of DeleteParkingLot.
-func (mr *MockIParkingLotUseCaseMockRecorder) DeleteParkingLot(parkingLotID interface{}) *gomock.Call {
+func (mr *MockIParkingLotUseCaseMockRecorder) DeleteParkingLot(parkingLotID, adminID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteParkingLot", reflect.TypeOf((*MockIParkingLotUseCase)(nil).DeleteParkingLot), parkingLotID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteParkingLot", reflect.TypeOf((*MockIParkingLotUseCase)(nil).DeleteParkingLot), parkingLotID, adminID)
 }
 
 // GetParkingLot mocks base method.
@@ -76,6 +76,21 @@ func (m *MockIParkingLotUseCase) GetParkingLot(parkingLotID uint) (*usecase.Park
 func (mr *MockIParkingLotUseCaseMockRecorder) GetParkingLot(parkingLotID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParkingLot", reflect.TypeOf((*MockIParkingLotUseCase)(nil).GetParkingLot), parkingLotID)
+}
+
+// GetParkingLotWithOwnership mocks base method.
+func (m *MockIParkingLotUseCase) GetParkingLotWithOwnership(parkingLotID uint, adminID string) (*usecase.ParkingLotResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetParkingLotWithOwnership", parkingLotID, adminID)
+	ret0, _ := ret[0].(*usecase.ParkingLotResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetParkingLotWithOwnership indicates an expected call of GetParkingLotWithOwnership.
+func (mr *MockIParkingLotUseCaseMockRecorder) GetParkingLotWithOwnership(parkingLotID, adminID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParkingLotWithOwnership", reflect.TypeOf((*MockIParkingLotUseCase)(nil).GetParkingLotWithOwnership), parkingLotID, adminID)
 }
 
 // ListParkingLots mocks base method.
@@ -94,15 +109,15 @@ func (mr *MockIParkingLotUseCaseMockRecorder) ListParkingLots() *gomock.Call {
 }
 
 // UpdateParkingLot mocks base method.
-func (m *MockIParkingLotUseCase) UpdateParkingLot(parkingLotID uint, req usecase.UpdateParkingLotRequest) error {
+func (m *MockIParkingLotUseCase) UpdateParkingLot(parkingLotID uint, req usecase.UpdateParkingLotRequest, adminID string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateParkingLot", parkingLotID, req)
+	ret := m.ctrl.Call(m, "UpdateParkingLot", parkingLotID, req, adminID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateParkingLot indicates an expected call of UpdateParkingLot.
-func (mr *MockIParkingLotUseCaseMockRecorder) UpdateParkingLot(parkingLotID, req interface{}) *gomock.Call {
+func (mr *MockIParkingLotUseCaseMockRecorder) UpdateParkingLot(parkingLotID, req, adminID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateParkingLot", reflect.TypeOf((*MockIParkingLotUseCase)(nil).UpdateParkingLot), parkingLotID, req)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateParkingLot", reflect.TypeOf((*MockIParkingLotUseCase)(nil).UpdateParkingLot), parkingLotID, req, adminID)
 }

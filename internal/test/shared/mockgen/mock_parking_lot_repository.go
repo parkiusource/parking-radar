@@ -77,6 +77,21 @@ func (mr *MockIParkingLotRepositoryMockRecorder) GetByID(id interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockIParkingLotRepository)(nil).GetByID), id)
 }
 
+// GetByIDWithAdmin mocks base method.
+func (m *MockIParkingLotRepository) GetByIDWithAdmin(parkingLotID uint, adminID string) (*domain.ParkingLot, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByIDWithAdmin", parkingLotID, adminID)
+	ret0, _ := ret[0].(*domain.ParkingLot)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByIDWithAdmin indicates an expected call of GetByIDWithAdmin.
+func (mr *MockIParkingLotRepositoryMockRecorder) GetByIDWithAdmin(parkingLotID, adminID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByIDWithAdmin", reflect.TypeOf((*MockIParkingLotRepository)(nil).GetByIDWithAdmin), parkingLotID, adminID)
+}
+
 // List mocks base method.
 func (m *MockIParkingLotRepository) List() ([]domain.ParkingLot, error) {
 	m.ctrl.T.Helper()

@@ -9,6 +9,7 @@ import (
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
+	r.RedirectTrailingSlash = true
 
 	r.Use(middlewares.CORSMiddleware())
 
@@ -16,7 +17,7 @@ func SetupRouter() *gin.Engine {
 
 	r.GET("/ws", handlers.WebSocketHandler.HandleConnection)
 
-	// Rutas para usuarios
+	// Routes for users
 	users := r.Group("/users")
 	{
 		users.POST("/register", handlers.UserHandler.Register)
@@ -25,17 +26,18 @@ func SetupRouter() *gin.Engine {
 		users.DELETE("/:id", handlers.UserHandler.DeleteUser)
 	}
 
-	// Rutas para parking lots
+	// Routes for parking lots
 	parkingLots := r.Group("/parking-lots")
+	parkingLots.Use(middlewares.AuthMiddleware("admin_local", "admin_global"))
 	{
 		parkingLots.POST("/", handlers.ParkingLotHandler.CreateParkingLot)
-		parkingLots.GET("/", handlers.ParkingLotHandler.ListParkingLots)
-		parkingLots.GET("/:id", handlers.ParkingLotHandler.GetParkingLot)
 		parkingLots.PUT("/:id", handlers.ParkingLotHandler.UpdateParkingLot)
 		parkingLots.DELETE("/:id", handlers.ParkingLotHandler.DeleteParkingLot)
+		parkingLots.GET("/", handlers.ParkingLotHandler.ListParkingLots)
+		parkingLots.GET("/:id", handlers.ParkingLotHandler.GetParkingLot)
 	}
 
-	// Rutas para sensores
+	// Routes for sensors
 	sensors := r.Group("/sensors")
 	{
 		sensors.POST("/", handlers.SensorHandler.CreateSensor)
@@ -45,7 +47,7 @@ func SetupRouter() *gin.Engine {
 		sensors.DELETE("/:id", handlers.SensorHandler.DeleteSensor)
 	}
 
-	// Rutas para ESP32 devices
+	// Routes for esp32 devices
 	esp32Devices := r.Group("/esp32-devices")
 	{
 		esp32Devices.POST("/register", handlers.Esp32DeviceHandler.CreateEsp32Device)
@@ -57,7 +59,7 @@ func SetupRouter() *gin.Engine {
 
 	r.POST("/ping", handler.PinHandler)
 
-	r.GET("/init", handler.AuthMiddleware(), handler.InitHandler)
+	r.GET("/init", middlewares.AuthMiddleware(), handler.InitHandler)
 
 	return r
 }

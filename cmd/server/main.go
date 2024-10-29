@@ -16,11 +16,11 @@ func main() {
 
 	db.ConnectDatabase()
 
-	err := db.DB.AutoMigrate(&domain.User{}, &domain.ParkingLot{}, &domain.Sensor{}, &domain.Admin{})
+	err := db.DB.AutoMigrate(&domain.User{}, &domain.ParkingLot{}, &domain.Sensor{}, &domain.Esp32Device{})
 	if err != nil {
 		log.Fatal("Failed to migrate database:", err)
 	}
-	fmt.Println("Conexión exitosa a PostgreSQL y tablas creadas")
+	fmt.Println("Database connected and migrated successfully")
 
 	gin.SetMode(gin.ReleaseMode)
 	root := router.SetupRouter()
@@ -28,7 +28,7 @@ func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
 		log.Println("none port")
-		port = "8080" // Default port if not specified
+		port = "8080"
 	}
 
 	log.Printf("Server running on port %s", port)
