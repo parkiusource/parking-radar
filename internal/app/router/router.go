@@ -26,19 +26,21 @@ func SetupRouter() *gin.Engine {
 		users.DELETE("/:id", handlers.UserHandler.DeleteUser)
 	}
 
-	// Routes for parking lots
-
-	parkingLots := r.Group("/parking-lots")
-	parkingLots.Use(middlewares.CORSMiddleware(), middlewares.AuthMiddleware("admin_local", "admin_global"))
-	r.GET("/parking-lots", handlers.ParkingLotHandler.ListParkingLots, middlewares.CORSMiddleware())
-	r.GET("/parking-lots/", handlers.ParkingLotHandler.ListParkingLots, middlewares.CORSMiddleware())
+	// Group for parking lots
+	publicParkingLots := r.Group("/parking-lots")
 	{
-		parkingLots.POST("/", handlers.ParkingLotHandler.CreateParkingLot)
-		parkingLots.PUT("/:id", handlers.ParkingLotHandler.UpdateParkingLot)
-		parkingLots.DELETE("/:id", handlers.ParkingLotHandler.DeleteParkingLot)
-		parkingLots.GET("/:id", handlers.ParkingLotHandler.GetParkingLot)
+		publicParkingLots.GET("/", handlers.ParkingLotHandler.ListParkingLots)
 	}
 
+	// Group for protected parking lots
+	protectedParkingLots := r.Group("/parking-lots")
+	protectedParkingLots.Use(middlewares.AuthMiddleware("admin_local", "admin_global"))
+	{
+		protectedParkingLots.POST("/", handlers.ParkingLotHandler.CreateParkingLot)
+		protectedParkingLots.GET("/:id", handlers.ParkingLotHandler.GetParkingLot)
+		protectedParkingLots.PUT("/:id", handlers.ParkingLotHandler.UpdateParkingLot)
+		protectedParkingLots.DELETE("/:id", handlers.ParkingLotHandler.DeleteParkingLot)
+	}
 	// Routes for sensors
 	sensors := r.Group("/sensors")
 	{
