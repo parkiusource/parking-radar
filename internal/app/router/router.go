@@ -30,7 +30,7 @@ func SetupRouter() *gin.Engine {
 
 	parkingLots := r.Group("/parking-lots")
 	parkingLots.Use(middlewares.AuthMiddleware("admin_local", "admin_global"))
-	r.GET("/", handlers.ParkingLotHandler.ListParkingLots)
+	r.GET("/parking-lots", handlers.ParkingLotHandler.ListParkingLots)
 	{
 		parkingLots.POST("/", handlers.ParkingLotHandler.CreateParkingLot)
 		parkingLots.PUT("/:id", handlers.ParkingLotHandler.UpdateParkingLot)
