@@ -16,6 +16,7 @@ type Handlers struct {
 	SensorHandler      *handler.SensorHandler
 	Esp32DeviceHandler *handler.Esp32DeviceHandler
 	WebSocketHandler   *handler.WebSocketHandler
+	AdminHandler       *handler.AdminHandler
 }
 
 // SetupDependencies initializes all dependencies and returns the handlers
@@ -28,6 +29,7 @@ func SetupDependencies() *Handlers {
 		SensorHandler:      setupSensorHandler(wsHub),
 		Esp32DeviceHandler: setupEsp32DeviceHandler(),
 		WebSocketHandler:   setupWebSocketHandler(wsHub),
+		AdminHandler:       setupAdminHandler(),
 	}
 }
 
@@ -53,11 +55,19 @@ func setupUserHandler() *handler.UserHandler {
 	return handler.NewUserHandler(userUseCase)
 }
 
+// setupAdminHandler initializes the AdminHandler
+func setupAdminHandler() *handler.AdminHandler {
+	adminRepository := &db.AdminRepositoryImpl{DB: db2.DB}
+	adminUseCase := usecase.NewAdminUseCase(adminRepository)
+	return handler.NewAdminHandler(adminUseCase)
+}
+
 // setupParkingLotHandler initializes the ParkingLotHandler with the hub
 func setupParkingLotHandler(wsHub *hub.WebSocketHub) *handler.ParkingLotHandler {
 	sensorRepository := &db.SensorRepositoryImpl{DB: db2.DB}
 	parkingLotRepository := &db.ParkingLotRepositoryImpl{DB: db2.DB}
-	parkingLotUseCase := usecase.NewParkingLotUseCase(parkingLotRepository, sensorRepository)
+	adminRepository := &db.AdminRepositoryImpl{DB: db2.DB}
+	parkingLotUseCase := usecase.NewParkingLotUseCase(parkingLotRepository, sensorRepository, adminRepository)
 	return handler.NewParkingLotHandler(parkingLotUseCase, wsHub)
 }
 

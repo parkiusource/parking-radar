@@ -7,6 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	REGISTER = "/register"
+)
+
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 	r.RedirectTrailingSlash = true
@@ -20,7 +24,7 @@ func SetupRouter() *gin.Engine {
 	// Routes for users
 	users := r.Group("/users")
 	{
-		users.POST("/register", handlers.UserHandler.Register)
+		users.POST(REGISTER, handlers.UserHandler.Register)
 		users.GET("/:id", handlers.UserHandler.GetUserByID)
 		users.PUT("/:id", handlers.UserHandler.UpdateUser)
 		users.DELETE("/:id", handlers.UserHandler.DeleteUser)
@@ -51,10 +55,27 @@ func SetupRouter() *gin.Engine {
 		sensors.DELETE("/:id", handlers.SensorHandler.DeleteSensor)
 	}
 
+	// Group for register Admin
+	admins := r.Group("/admins")
+	admins.Use(middlewares.AuthMiddleware("admin_default", "admin_global"))
+	{
+		admins.POST(REGISTER, handlers.AdminHandler.RegisterAdmin)
+	}
+
+	// Group for protected Admin Profile
+	protectedAdmins := r.Group("/admins")
+	protectedAdmins.Use(middlewares.AuthMiddleware("admin_local", "admin_global"))
+	{
+		protectedAdmins.GET("/parking-lots", handlers.AdminHandler.GetParkingLotsByAdmin)
+		protectedAdmins.POST("/complete-profile", handlers.AdminHandler.CompleteAdminProfile)
+		protectedAdmins.GET("/profile", handlers.AdminHandler.GetAdminProfile)
+
+	}
+
 	// Routes for esp32 devices
 	esp32Devices := r.Group("/esp32-devices")
 	{
-		esp32Devices.POST("/register", handlers.Esp32DeviceHandler.CreateEsp32Device)
+		esp32Devices.POST(REGISTER, handlers.Esp32DeviceHandler.CreateEsp32Device)
 		esp32Devices.GET("/list", handlers.Esp32DeviceHandler.ListEsp32Devices)
 		esp32Devices.GET("/:id", handlers.Esp32DeviceHandler.GetEsp32Device)
 		esp32Devices.PUT("/:id", handlers.Esp32DeviceHandler.UpdateEsp32Device)

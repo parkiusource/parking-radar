@@ -26,7 +26,7 @@ func (r *ParkingLotRepositoryImpl) GetByID(id uint) (*domain.ParkingLot, error) 
 }
 
 // GetByIDWithAdmin retrieves a parking lot by ID and verifies ownership.
-func (r *ParkingLotRepositoryImpl) GetByIDWithAdmin(parkingLotID uint, adminID string) (*domain.ParkingLot, error) {
+func (r *ParkingLotRepositoryImpl) GetByIDWithAdmin(parkingLotID uint, adminID uint) (*domain.ParkingLot, error) {
 	var parkingLot domain.ParkingLot
 	if err := r.DB.Where("id = ? AND admin_id = ?", parkingLotID, adminID).First(&parkingLot).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -35,6 +35,15 @@ func (r *ParkingLotRepositoryImpl) GetByIDWithAdmin(parkingLotID uint, adminID s
 		return nil, err
 	}
 	return &parkingLot, nil
+}
+
+// FindByAdminID retrieves all parking lots associated with a specific admin.
+func (r *ParkingLotRepositoryImpl) FindByAdminID(adminID uint) ([]domain.ParkingLot, error) {
+	var parkingLots []domain.ParkingLot
+	if err := r.DB.Where("admin_id = ?", adminID).Find(&parkingLots).Error; err != nil {
+		return nil, err
+	}
+	return parkingLots, nil
 }
 
 // Update modifies an existing parking lot.
@@ -48,7 +57,7 @@ func (r *ParkingLotRepositoryImpl) Delete(id uint) error {
 }
 
 // DeleteWithAdmin removes a parking lot after verifying ownership.
-func (r *ParkingLotRepositoryImpl) DeleteWithAdmin(parkingLotID uint, adminID string) error {
+func (r *ParkingLotRepositoryImpl) DeleteWithAdmin(parkingLotID uint, adminID uint) error {
 	if _, err := r.GetByIDWithAdmin(parkingLotID, adminID); err != nil {
 		return err
 	}

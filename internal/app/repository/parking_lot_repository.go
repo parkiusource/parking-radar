@@ -9,5 +9,6 @@ type IParkingLotRepository interface {
 	Update(parkingLot *domain.ParkingLot) error
 	Delete(id uint) error
 	List() ([]domain.ParkingLot, error)
-	GetByIDWithAdmin(parkingLotID uint, adminID string) (*domain.ParkingLot, error)
+	GetByIDWithAdmin(parkingLotID uint, adminID uint) (*domain.ParkingLot, error)
+	FindByAdminID(adminID uint) ([]domain.ParkingLot, error)
 }

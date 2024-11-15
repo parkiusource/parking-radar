@@ -10,15 +10,16 @@ import (
 type IParkingLotUseCase interface {
 	CreateParkingLot(req CreateParkingLotRequest) (*ParkingLotResponse, error)
 	GetParkingLot(parkingLotID uint) (*ParkingLotResponse, error)
-	GetParkingLotWithOwnership(parkingLotID uint, adminID string) (*ParkingLotResponse, error)
-	UpdateParkingLot(parkingLotID uint, req UpdateParkingLotRequest, adminID string) error
-	DeleteParkingLot(parkingLotID uint, adminID string) error
+	GetParkingLotWithOwnership(parkingLotID uint, adminUUID string) (*ParkingLotResponse, error)
+	UpdateParkingLot(parkingLotID uint, req UpdateParkingLotRequest, adminUUID string) error
+	DeleteParkingLot(parkingLotID uint, adminUUID string) error
 	ListParkingLots() ([]ParkingLotResponse, error)
 }
 
 type ParkingLotUseCase struct {
 	ParkingLotRepository repository.IParkingLotRepository
 	SensorRepository     repository.ISensorRepository
+	AdminRepository      repository.IAdminRepository
 }
 
 type ParkingLotResponse struct {
@@ -35,7 +36,7 @@ type CreateParkingLotRequest struct {
 	Address   string  `json:"address"`
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
-	AdminID   string  `json:"admin_id"`
+	AdminUUID string  `json:"admin_uuid"`
 }
 
 type UpdateParkingLotRequest struct {
@@ -46,21 +47,28 @@ type UpdateParkingLotRequest struct {
 }
 
 // NewParkingLotUseCase creates a new instance of ParkingLotUseCase.
-func NewParkingLotUseCase(parkingLotRepo repository.IParkingLotRepository, sensorRepository repository.ISensorRepository) IParkingLotUseCase {
+func NewParkingLotUseCase(parkingLotRepo repository.IParkingLotRepository, sensorRepository repository.ISensorRepository, adminRepository repository.IAdminRepository) IParkingLotUseCase {
 	return &ParkingLotUseCase{
 		ParkingLotRepository: parkingLotRepo,
 		SensorRepository:     sensorRepository,
+		AdminRepository:      adminRepository,
 	}
 }
 
 // CreateParkingLot creates a new parking lot.
 func (uc *ParkingLotUseCase) CreateParkingLot(req CreateParkingLotRequest) (*ParkingLotResponse, error) {
+
+	admin, err := uc.AdminRepository.FindByAuth0UUID(req.AdminUUID)
+	if err != nil {
+		return nil, err
+	}
+
 	parkingLot := domain.ParkingLot{
 		Name:      req.Name,
 		Address:   req.Address,
 		Latitude:  req.Latitude,
 		Longitude: req.Longitude,
-		AdminID:   req.AdminID,
+		AdminID:   admin.ID,
 	}
 
 	if err := uc.ParkingLotRepository.Create(&parkingLot); err != nil {
@@ -101,8 +109,13 @@ func (uc *ParkingLotUseCase) GetParkingLot(parkingLotID uint) (*ParkingLotRespon
 }
 
 // GetParkingLotWithOwnership retrieves a parking lot if it belongs to the admin.
-func (uc *ParkingLotUseCase) GetParkingLotWithOwnership(parkingLotID uint, adminID string) (*ParkingLotResponse, error) {
-	parkingLot, err := uc.ParkingLotRepository.GetByIDWithAdmin(parkingLotID, adminID)
+func (uc *ParkingLotUseCase) GetParkingLotWithOwnership(parkingLotID uint, adminUUID string) (*ParkingLotResponse, error) {
+	admin, err := uc.AdminRepository.FindByAuth0UUID(adminUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	parkingLot, err := uc.ParkingLotRepository.GetByIDWithAdmin(parkingLotID, admin.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -125,8 +138,14 @@ func (uc *ParkingLotUseCase) GetParkingLotWithOwnership(parkingLotID uint, admin
 }
 
 // UpdateParkingLot updates a parking lot.
-func (uc *ParkingLotUseCase) UpdateParkingLot(parkingLotID uint, req UpdateParkingLotRequest, adminID string) error {
-	parkingLot, err := uc.ParkingLotRepository.GetByIDWithAdmin(parkingLotID, adminID)
+func (uc *ParkingLotUseCase) UpdateParkingLot(parkingLotID uint, req UpdateParkingLotRequest, adminUUID string) error {
+
+	admin, err := uc.AdminRepository.FindByAuth0UUID(adminUUID)
+	if err != nil {
+		return err
+	}
+
+	parkingLot, err := uc.ParkingLotRepository.GetByIDWithAdmin(parkingLotID, admin.ID)
 	if err != nil {
 		return err
 	}
@@ -140,8 +159,14 @@ func (uc *ParkingLotUseCase) UpdateParkingLot(parkingLotID uint, req UpdateParki
 }
 
 // DeleteParkingLot deletes a parking lot with ownership validation.
-func (uc *ParkingLotUseCase) DeleteParkingLot(parkingLotID uint, adminID string) error {
-	if _, err := uc.ParkingLotRepository.GetByIDWithAdmin(parkingLotID, adminID); err != nil {
+func (uc *ParkingLotUseCase) DeleteParkingLot(parkingLotID uint, adminUUID string) error {
+
+	admin, err := uc.AdminRepository.FindByAuth0UUID(adminUUID)
+	if err != nil {
+		return err
+	}
+
+	if _, err := uc.ParkingLotRepository.GetByIDWithAdmin(parkingLotID, admin.ID); err != nil {
 		return errors.New("forbidden: you don't have access to this parking lot")
 	}
 	return uc.ParkingLotRepository.Delete(parkingLotID)
