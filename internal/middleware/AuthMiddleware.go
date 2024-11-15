@@ -18,7 +18,7 @@ var (
 	audience = os.Getenv("AUTH0_AUDIENCE")
 )
 
-// Middleware de autenticación usando RS256 y JWKS
+// AuthMiddleware Middleware to validate JWT token.
 func AuthMiddleware(allowedRoles ...string) gin.HandlerFunc {
 	jwksURL := fmt.Sprintf("%s.well-known/jwks.json", domain)
 

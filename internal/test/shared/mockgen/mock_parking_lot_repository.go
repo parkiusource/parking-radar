@@ -62,6 +62,21 @@ func (mr *MockIParkingLotRepositoryMockRecorder) Delete(id interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockIParkingLotRepository)(nil).Delete), id)
 }
 
+// FindByAdminID mocks base method.
+func (m *MockIParkingLotRepository) FindByAdminID(adminID uint) ([]domain.ParkingLot, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByAdminID", adminID)
+	ret0, _ := ret[0].([]domain.ParkingLot)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByAdminID indicates an expected call of FindByAdminID.
+func (mr *MockIParkingLotRepositoryMockRecorder) FindByAdminID(adminID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByAdminID", reflect.TypeOf((*MockIParkingLotRepository)(nil).FindByAdminID), adminID)
+}
+
 // GetByID mocks base method.
 func (m *MockIParkingLotRepository) GetByID(id uint) (*domain.ParkingLot, error) {
 	m.ctrl.T.Helper()
@@ -78,7 +93,7 @@ func (mr *MockIParkingLotRepositoryMockRecorder) GetByID(id interface{}) *gomock
 }
 
 // GetByIDWithAdmin mocks base method.
-func (m *MockIParkingLotRepository) GetByIDWithAdmin(parkingLotID uint, adminID string) (*domain.ParkingLot, error) {
+func (m *MockIParkingLotRepository) GetByIDWithAdmin(parkingLotID, adminID uint) (*domain.ParkingLot, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByIDWithAdmin", parkingLotID, adminID)
 	ret0, _ := ret[0].(*domain.ParkingLot)

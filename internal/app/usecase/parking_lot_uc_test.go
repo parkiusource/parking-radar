@@ -10,29 +10,25 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// Simula el contexto con JWT y claims.
-func mockContextWithClaims(adminID string) map[string]interface{} {
-	return map[string]interface{}{
-		"sub": adminID,
-	}
-}
-
-// Test para crear un parking lot.
+// Test for creating a parking lot.
 func TestCreateParkingLot(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockRepo := mockgen.NewMockIParkingLotRepository(ctrl)
 	sensorRepo := mockgen.NewMockISensorRepository(ctrl)
-	useCase := NewParkingLotUseCase(mockRepo, sensorRepo)
+	adminRep := mockgen.NewMockIAdminRepository(ctrl)
+	useCase := NewParkingLotUseCase(mockRepo, sensorRepo, adminRep)
 
 	req := CreateParkingLotRequest{
 		Name:      "Test Lot",
 		Address:   "123 Test St",
 		Latitude:  40.7128,
 		Longitude: -74.0060,
-		AdminID:   "admin123",
+		AdminUUID: "admin123",
 	}
+
+	adminRep.EXPECT().FindByAuth0UUID(req.AdminUUID).Return(&domain.Admin{ID: 123}, nil)
 
 	mockRepo.EXPECT().Create(gomock.Any()).Return(nil)
 
@@ -40,23 +36,25 @@ func TestCreateParkingLot(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-// Test para obtener un parking lot con ownership.
+// Test for getting a parking lot with ownership.
 func TestGetParkingLotWithOwnership(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockRepo := mockgen.NewMockIParkingLotRepository(ctrl)
-	mockSensorRepo := mockgen.NewMockISensorRepository(ctrl)
-	useCase := NewParkingLotUseCase(mockRepo, mockSensorRepo)
+	sensorRepo := mockgen.NewMockISensorRepository(ctrl)
+	adminRep := mockgen.NewMockIAdminRepository(ctrl)
+	useCase := NewParkingLotUseCase(mockRepo, sensorRepo, adminRep)
 
 	adminID := "admin123"
 	parkingLotID := uint(1)
 
-	mockRepo.EXPECT().GetByIDWithAdmin(parkingLotID, adminID).Return(&domain.ParkingLot{
+	adminRep.EXPECT().FindByAuth0UUID(adminID).Return(&domain.Admin{ID: 123}, nil)
+	mockRepo.EXPECT().GetByIDWithAdmin(parkingLotID, uint(123)).Return(&domain.ParkingLot{
 		ID: 1, Name: "Test Lot", Address: "123 Test St", Latitude: 40.7128, Longitude: -74.0060,
 	}, nil)
 
-	mockSensorRepo.EXPECT().ListByParkingLot(parkingLotID).Return([]domain.Sensor{
+	sensorRepo.EXPECT().ListByParkingLot(parkingLotID).Return([]domain.Sensor{
 		{Status: "free"},
 		{Status: "busy"},
 	}, nil)
@@ -67,7 +65,7 @@ func TestGetParkingLotWithOwnership(t *testing.T) {
 	assert.Equal(t, uint(1), response.AvailableSpaces)
 }
 
-// Test para obtener un parking lot sin ownership.
+// Test for getting a parking lot with ownership.
 func TestGetParkingLot(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -98,20 +96,21 @@ func TestGetParkingLot(t *testing.T) {
 	assert.Equal(t, uint(1), response.AvailableSpaces)
 }
 
-// Test para listar parking lots.
+// Test for listing parking lots.
 func TestListParkingLots(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockRepo := mockgen.NewMockIParkingLotRepository(ctrl)
-	mockSensorRepo := mockgen.NewMockISensorRepository(ctrl)
-	useCase := NewParkingLotUseCase(mockRepo, mockSensorRepo)
+	sensorRepo := mockgen.NewMockISensorRepository(ctrl)
+	adminRep := mockgen.NewMockIAdminRepository(ctrl)
+	useCase := NewParkingLotUseCase(mockRepo, sensorRepo, adminRep)
 
 	mockRepo.EXPECT().List().Return([]domain.ParkingLot{
 		{ID: 1, Name: "Lot 1", Address: "Address 1", Latitude: 1.0, Longitude: 1.0},
 	}, nil)
 
-	mockSensorRepo.EXPECT().ListGroupedByParkingLot().Return(map[uint]uint{
+	sensorRepo.EXPECT().ListGroupedByParkingLot().Return(map[uint]uint{
 		1: 2,
 	}, nil)
 
@@ -121,18 +120,22 @@ func TestListParkingLots(t *testing.T) {
 	assert.Equal(t, uint(2), response[0].AvailableSpaces)
 }
 
-// Test para actualizar un parking lot.
+// Test for updating a parking lot.
 func TestUpdateParkingLot(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockRepo := mockgen.NewMockIParkingLotRepository(ctrl)
-	useCase := NewParkingLotUseCase(mockRepo, nil)
+	sensorRepo := mockgen.NewMockISensorRepository(ctrl)
+	adminRep := mockgen.NewMockIAdminRepository(ctrl)
+	useCase := NewParkingLotUseCase(mockRepo, sensorRepo, adminRep)
 
 	adminID := "admin123"
 	parkingLotID := uint(1)
 
-	mockRepo.EXPECT().GetByIDWithAdmin(parkingLotID, adminID).Return(&domain.ParkingLot{
+	adminRep.EXPECT().FindByAuth0UUID(adminID).Return(&domain.Admin{ID: 123}, nil)
+
+	mockRepo.EXPECT().GetByIDWithAdmin(parkingLotID, uint(123)).Return(&domain.ParkingLot{
 		ID: 1, Name: "Old Name", Address: "Old Address", Latitude: 1.0, Longitude: 1.0,
 	}, nil)
 
@@ -149,19 +152,23 @@ func TestUpdateParkingLot(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-// Test para eliminar un parking lot.
+// Test for deleting a parking lot.
 func TestDeleteParkingLot(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockRepo := mockgen.NewMockIParkingLotRepository(ctrl)
-	useCase := NewParkingLotUseCase(mockRepo, nil)
+	sensorRepo := mockgen.NewMockISensorRepository(ctrl)
+	adminRep := mockgen.NewMockIAdminRepository(ctrl)
+	useCase := NewParkingLotUseCase(mockRepo, sensorRepo, adminRep)
 
 	adminID := "admin123"
 	parkingLotID := uint(1)
 
-	mockRepo.EXPECT().GetByIDWithAdmin(parkingLotID, adminID).Return(&domain.ParkingLot{
-		ID: 1, AdminID: adminID,
+	adminRep.EXPECT().FindByAuth0UUID(adminID).Return(&domain.Admin{ID: 123}, nil)
+
+	mockRepo.EXPECT().GetByIDWithAdmin(parkingLotID, uint(123)).Return(&domain.ParkingLot{
+		ID: 1, AdminID: 123,
 	}, nil)
 
 	mockRepo.EXPECT().Delete(parkingLotID).Return(nil)
@@ -170,18 +177,22 @@ func TestDeleteParkingLot(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-// Test para caso de error en actualización por falta de ownership.
+// Test for updating a parking lot with no ownership.
 func TestUpdateParkingLot_NoOwnership(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockRepo := mockgen.NewMockIParkingLotRepository(ctrl)
-	useCase := NewParkingLotUseCase(mockRepo, nil)
+	sensorRepo := mockgen.NewMockISensorRepository(ctrl)
+	adminRep := mockgen.NewMockIAdminRepository(ctrl)
+	useCase := NewParkingLotUseCase(mockRepo, sensorRepo, adminRep)
 
 	adminID := "wrong-admin"
 	parkingLotID := uint(1)
 
-	mockRepo.EXPECT().GetByIDWithAdmin(parkingLotID, adminID).Return(nil, errors.New("not authorized"))
+	adminRep.EXPECT().FindByAuth0UUID(adminID).Return(&domain.Admin{ID: 123}, nil)
+
+	mockRepo.EXPECT().GetByIDWithAdmin(parkingLotID, uint(123)).Return(nil, errors.New("not authorized"))
 
 	req := UpdateParkingLotRequest{
 		Name:      "New Name",

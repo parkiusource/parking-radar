@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/CamiloLeonP/parking-radar/internal/helpers"
 	"net/http"
 	"strconv"
 	"strings"
@@ -35,14 +35,14 @@ func (h *ParkingLotHandler) CreateParkingLot(c *gin.Context) {
 		return
 	}
 
-	adminID, _ := extractAdminIDAndRole(c)
+	AdminUUID, _ := helpers.ExtractAdminIDAndRole(c)
 
-	if strings.EqualFold(adminID, "") {
+	if strings.EqualFold(AdminUUID, "") {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid role for admin"})
 		return
 	}
 
-	req.AdminID = adminID
+	req.AdminUUID = AdminUUID
 
 	h.processCreateParkingLot(c, req)
 }
@@ -69,7 +69,7 @@ func (h *ParkingLotHandler) processCreateParkingLot(c *gin.Context, req usecase.
 
 // GetParkingLot retrieves a specific parking lot by ID.
 func (h *ParkingLotHandler) GetParkingLot(c *gin.Context) {
-	adminID, isGlobalAdmin := extractAdminIDAndRole(c)
+	adminUUID, isGlobalAdmin := helpers.ExtractAdminIDAndRole(c)
 
 	parkingLotID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -78,7 +78,7 @@ func (h *ParkingLotHandler) GetParkingLot(c *gin.Context) {
 	}
 
 	if !isGlobalAdmin {
-		if _, err := h.ParkingLotUseCase.GetParkingLotWithOwnership(uint(parkingLotID), adminID); err != nil {
+		if _, err := h.ParkingLotUseCase.GetParkingLotWithOwnership(uint(parkingLotID), adminUUID); err != nil {
 			c.JSON(http.StatusForbidden, gin.H{"error": dontHaveAccessToParkingLot})
 			return
 		}
@@ -95,7 +95,7 @@ func (h *ParkingLotHandler) GetParkingLot(c *gin.Context) {
 
 // UpdateParkingLot updates a parking lot and notifies clients.
 func (h *ParkingLotHandler) UpdateParkingLot(c *gin.Context) {
-	adminID, isGlobalAdmin := extractAdminIDAndRole(c)
+	adminUUID, isGlobalAdmin := helpers.ExtractAdminIDAndRole(c)
 
 	parkingLotID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -104,7 +104,7 @@ func (h *ParkingLotHandler) UpdateParkingLot(c *gin.Context) {
 	}
 
 	if !isGlobalAdmin {
-		if _, err := h.ParkingLotUseCase.GetParkingLotWithOwnership(uint(parkingLotID), adminID); err != nil {
+		if _, err := h.ParkingLotUseCase.GetParkingLotWithOwnership(uint(parkingLotID), adminUUID); err != nil {
 			c.JSON(http.StatusForbidden, gin.H{"error": dontHaveAccessToParkingLot})
 			return
 		}
@@ -116,7 +116,7 @@ func (h *ParkingLotHandler) UpdateParkingLot(c *gin.Context) {
 		return
 	}
 
-	if err := h.ParkingLotUseCase.UpdateParkingLot(uint(parkingLotID), req, adminID); err != nil {
+	if err := h.ParkingLotUseCase.UpdateParkingLot(uint(parkingLotID), req, adminUUID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update parking lot"})
 		return
 	}
@@ -132,7 +132,7 @@ func (h *ParkingLotHandler) UpdateParkingLot(c *gin.Context) {
 
 // DeleteParkingLot deletes a parking lot and notifies clients.
 func (h *ParkingLotHandler) DeleteParkingLot(c *gin.Context) {
-	adminID, isGlobalAdmin := extractAdminIDAndRole(c)
+	adminUUID, isGlobalAdmin := helpers.ExtractAdminIDAndRole(c)
 
 	parkingLotID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -141,13 +141,13 @@ func (h *ParkingLotHandler) DeleteParkingLot(c *gin.Context) {
 	}
 
 	if !isGlobalAdmin {
-		if _, err := h.ParkingLotUseCase.GetParkingLotWithOwnership(uint(parkingLotID), adminID); err != nil {
+		if _, err := h.ParkingLotUseCase.GetParkingLotWithOwnership(uint(parkingLotID), adminUUID); err != nil {
 			c.JSON(http.StatusForbidden, gin.H{"error": dontHaveAccessToParkingLot})
 			return
 		}
 	}
 
-	if err := h.ParkingLotUseCase.DeleteParkingLot(uint(parkingLotID), adminID); err != nil {
+	if err := h.ParkingLotUseCase.DeleteParkingLot(uint(parkingLotID), adminUUID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete parking lot"})
 		return
 	}
@@ -178,31 +178,4 @@ func (h *ParkingLotHandler) NotifyChange(event string, details gin.H) {
 			"details": details,
 		},
 	})
-}
-
-// extractAdminIDAndRole extracts the admin ID and checks if the user is a global admin.
-func extractAdminIDAndRole(c *gin.Context) (string, bool) {
-	userClaims, ok := c.Get("user")
-	if !ok {
-		return "", false
-	}
-
-	claims, ok := userClaims.(jwt.MapClaims)
-	if !ok {
-		return "", false
-	}
-
-	adminID, _ := claims["sub"].(string)
-
-	roles, ok := claims["https://parkiu.com/roles"].([]interface{})
-	if !ok {
-		return adminID, false
-	}
-
-	for _, role := range roles {
-		if roleStr, ok := role.(string); ok && roleStr == "admin_global" {
-			return adminID, true
-		}
-	}
-	return adminID, false
 }
