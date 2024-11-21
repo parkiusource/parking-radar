@@ -23,7 +23,7 @@ func NewAdminHandler(adminUseCase usecase.IAdminUseCase) *AdminHandler {
 func (h *AdminHandler) RegisterAdmin(c *gin.Context) {
 	// Define a struct to parse the request body
 	type RegisterAdminPayload struct {
-		User string `json:"user"`
+		User string `json:"user_id"`
 	}
 
 	var payload RegisterAdminPayload
