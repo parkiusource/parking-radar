@@ -45,7 +45,8 @@ func (h *AdminHandler) RegisterAdmin(c *gin.Context) {
 	// Call the use case to register the admin
 	err := h.AdminUseCase.RegisterAdmin(adminID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "error registering admin"})
+		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+		return
 		return
 	}
 

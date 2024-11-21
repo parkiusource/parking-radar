@@ -1,54 +1,53 @@
 package handler
 
 import (
-	"github.com/CamiloLeonP/parking-radar/internal/helpers"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/CamiloLeonP/parking-radar/internal/app/usecase"
+	"github.com/CamiloLeonP/parking-radar/internal/helpers"
 	"github.com/CamiloLeonP/parking-radar/internal/hub"
 	"github.com/gin-gonic/gin"
 )
 
-const dontHaveAccessToParkingLot = "you don't have access to this parking lot"
+const (
+	dontHaveAccessToParkingLot = "you don't have access to this parking lot"
+	invalidParkingLotID        = "invalid parking lot id"
+	invalidRequestBody         = "invalid request body"
+)
 
-// ParkingLotHandler manages parking lot operations and WebSocket notifications.
 type ParkingLotHandler struct {
-	ParkingLotUseCase usecase.IParkingLotUseCase
-	WebSocketHub      *hub.WebSocketHub // WebSocket hub dependency.
+	useCase      usecase.IParkingLotUseCase
+	webSocketHub *hub.WebSocketHub
 }
 
-// NewParkingLotHandler creates a new instance of ParkingLotHandler.
-func NewParkingLotHandler(ParkingLotUseCase usecase.IParkingLotUseCase, wsHub *hub.WebSocketHub) *ParkingLotHandler {
+func NewParkingLotHandler(useCase usecase.IParkingLotUseCase, wsHub *hub.WebSocketHub) *ParkingLotHandler {
 	return &ParkingLotHandler{
-		ParkingLotUseCase: ParkingLotUseCase,
-		WebSocketHub:      wsHub,
+		useCase:      useCase,
+		webSocketHub: wsHub,
 	}
 }
 
-// CreateParkingLot creates a new parking lot and notifies clients.
 func (h *ParkingLotHandler) CreateParkingLot(c *gin.Context) {
 	var req usecase.CreateParkingLotRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": invalidRequestBody})
 		return
 	}
 
-	AdminUUID, _ := helpers.ExtractAdminIDAndRole(c)
-
-	if strings.EqualFold(AdminUUID, "") {
+	adminUUID, _ := helpers.ExtractAdminIDAndRole(c)
+	if adminUUID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid role for admin"})
 		return
 	}
 
-	req.AdminUUID = AdminUUID
-
+	req.AdminUUID = adminUUID
 	h.processCreateParkingLot(c, req)
 }
 
 func (h *ParkingLotHandler) processCreateParkingLot(c *gin.Context, req usecase.CreateParkingLotRequest) {
-	parkingLot, err := h.ParkingLotUseCase.CreateParkingLot(req)
+	parkingLot, err := h.useCase.CreateParkingLot(req)
 	if err != nil {
 		if strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "parking lot already exists"})
@@ -58,7 +57,7 @@ func (h *ParkingLotHandler) processCreateParkingLot(c *gin.Context, req usecase.
 		return
 	}
 
-	h.NotifyChange("parking-lot-created", gin.H{
+	h.notifyChange("parking-lot-created", gin.H{
 		"id":      parkingLot.ID,
 		"name":    parkingLot.Name,
 		"address": parkingLot.Address,
@@ -67,24 +66,31 @@ func (h *ParkingLotHandler) processCreateParkingLot(c *gin.Context, req usecase.
 	c.JSON(http.StatusCreated, gin.H{"status": "parking lot created", "id": parkingLot.ID})
 }
 
-// GetParkingLot retrieves a specific parking lot by ID.
-func (h *ParkingLotHandler) GetParkingLot(c *gin.Context) {
-	adminUUID, isGlobalAdmin := helpers.ExtractAdminIDAndRole(c)
-
+func (h *ParkingLotHandler) validateAccess(c *gin.Context) (uint, bool) {
 	parkingLotID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid parking lot id"})
-		return
+		c.JSON(http.StatusBadRequest, gin.H{"error": invalidParkingLotID})
+		return 0, false
 	}
 
+	adminUUID, isGlobalAdmin := helpers.ExtractAdminIDAndRole(c)
 	if !isGlobalAdmin {
-		if _, err := h.ParkingLotUseCase.GetParkingLotWithOwnership(uint(parkingLotID), adminUUID); err != nil {
+		if _, err := h.useCase.GetParkingLotWithOwnership(uint(parkingLotID), adminUUID); err != nil {
 			c.JSON(http.StatusForbidden, gin.H{"error": dontHaveAccessToParkingLot})
-			return
+			return 0, false
 		}
 	}
 
-	parkingLot, err := h.ParkingLotUseCase.GetParkingLot(uint(parkingLotID))
+	return uint(parkingLotID), true
+}
+
+func (h *ParkingLotHandler) GetParkingLot(c *gin.Context) {
+	parkingLotID, ok := h.validateAccess(c)
+	if !ok {
+		return
+	}
+
+	parkingLot, err := h.useCase.GetParkingLot(parkingLotID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve parking lot"})
 		return
@@ -93,35 +99,25 @@ func (h *ParkingLotHandler) GetParkingLot(c *gin.Context) {
 	c.JSON(http.StatusOK, parkingLot)
 }
 
-// UpdateParkingLot updates a parking lot and notifies clients.
 func (h *ParkingLotHandler) UpdateParkingLot(c *gin.Context) {
-	adminUUID, isGlobalAdmin := helpers.ExtractAdminIDAndRole(c)
-
-	parkingLotID, err := strconv.ParseUint(c.Param("id"), 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid parking lot id"})
+	parkingLotID, ok := h.validateAccess(c)
+	if !ok {
 		return
-	}
-
-	if !isGlobalAdmin {
-		if _, err := h.ParkingLotUseCase.GetParkingLotWithOwnership(uint(parkingLotID), adminUUID); err != nil {
-			c.JSON(http.StatusForbidden, gin.H{"error": dontHaveAccessToParkingLot})
-			return
-		}
 	}
 
 	var req usecase.UpdateParkingLotRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": invalidRequestBody})
 		return
 	}
 
-	if err := h.ParkingLotUseCase.UpdateParkingLot(uint(parkingLotID), req, adminUUID); err != nil {
+	adminUUID, _ := helpers.ExtractAdminIDAndRole(c)
+	if err := h.useCase.UpdateParkingLot(parkingLotID, req, adminUUID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update parking lot"})
 		return
 	}
 
-	h.NotifyChange("parking-lot-updated", gin.H{
+	h.notifyChange("parking-lot-updated", gin.H{
 		"id":      parkingLotID,
 		"name":    req.Name,
 		"address": req.Address,
@@ -130,38 +126,24 @@ func (h *ParkingLotHandler) UpdateParkingLot(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "parking lot updated"})
 }
 
-// DeleteParkingLot deletes a parking lot and notifies clients.
 func (h *ParkingLotHandler) DeleteParkingLot(c *gin.Context) {
-	adminUUID, isGlobalAdmin := helpers.ExtractAdminIDAndRole(c)
-
-	parkingLotID, err := strconv.ParseUint(c.Param("id"), 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid parking lot id"})
+	parkingLotID, ok := h.validateAccess(c)
+	if !ok {
 		return
 	}
 
-	if !isGlobalAdmin {
-		if _, err := h.ParkingLotUseCase.GetParkingLotWithOwnership(uint(parkingLotID), adminUUID); err != nil {
-			c.JSON(http.StatusForbidden, gin.H{"error": dontHaveAccessToParkingLot})
-			return
-		}
-	}
-
-	if err := h.ParkingLotUseCase.DeleteParkingLot(uint(parkingLotID), adminUUID); err != nil {
+	adminUUID, _ := helpers.ExtractAdminIDAndRole(c)
+	if err := h.useCase.DeleteParkingLot(parkingLotID, adminUUID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete parking lot"})
 		return
 	}
 
-	h.NotifyChange("parking-lot-deleted", gin.H{
-		"id": parkingLotID,
-	})
-
+	h.notifyChange("parking-lot-deleted", gin.H{"id": parkingLotID})
 	c.JSON(http.StatusOK, gin.H{"status": "parking lot deleted"})
 }
 
-// ListParkingLots retrieves all parking lots.
 func (h *ParkingLotHandler) ListParkingLots(c *gin.Context) {
-	parkingLots, err := h.ParkingLotUseCase.ListParkingLots()
+	parkingLots, err := h.useCase.ListParkingLots()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve parking lots"})
 		return
@@ -169,9 +151,8 @@ func (h *ParkingLotHandler) ListParkingLots(c *gin.Context) {
 	c.JSON(http.StatusOK, parkingLots)
 }
 
-// NotifyChange sends a unified notification to all connected clients.
-func (h *ParkingLotHandler) NotifyChange(event string, details gin.H) {
-	h.WebSocketHub.Broadcast(gin.H{
+func (h *ParkingLotHandler) notifyChange(event string, details gin.H) {
+	h.webSocketHub.Broadcast(gin.H{
 		"type": "new-change-in-parking",
 		"payload": gin.H{
 			"event":   event,

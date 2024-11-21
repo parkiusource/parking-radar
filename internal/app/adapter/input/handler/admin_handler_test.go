@@ -38,10 +38,19 @@ func TestRegisterAdmin(t *testing.T) {
 	mockUseCase := mockgen.NewMockIAdminUseCase(ctrl)
 	r := setupAdminHandler(mockUseCase)
 
+	type RegisterAdminPayload struct {
+		User string `json:"user_id"`
+	}
+
+	payload := RegisterAdminPayload{
+		User: "auth0|6721363081b8547d3f95a976",
+	}
+
 	mockUseCase.EXPECT().RegisterAdmin("auth0|6721363081b8547d3f95a976").Return(nil)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/admin/register", nil)
+	body, _ := json.Marshal(payload)
+	req, _ := http.NewRequest("POST", "/admin/register", bytes.NewBuffer(body))
 	tokenString, _ := generateTestJWT()
 	req.Header.Set("Authorization", "Bearer "+tokenString)
 
@@ -63,22 +72,31 @@ func TestRegisterAdmin_Error(t *testing.T) {
 	mockUseCase := mockgen.NewMockIAdminUseCase(ctrl)
 	r := setupAdminHandler(mockUseCase)
 
+	type RegisterAdminPayload struct {
+		User string `json:"user_id"`
+	}
+
+	payload := RegisterAdminPayload{
+		User: "auth0|6721363081b8547d3f95a976",
+	}
+
 	mockUseCase.EXPECT().RegisterAdmin("auth0|6721363081b8547d3f95a976").Return(errors.New("registration failed"))
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/admin/register", nil)
+	body, _ := json.Marshal(payload)
+	req, _ := http.NewRequest("POST", "/admin/register", bytes.NewBuffer(body))
 	tokenString, _ := generateTestJWT()
 	req.Header.Set("Authorization", "Bearer "+tokenString)
 
 	r.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.Equal(t, http.StatusConflict, w.Code)
 	var response gin.H
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	if err != nil {
 		return
 	}
-	assert.Equal(t, "error registering admin", response["error"])
+	assert.Equal(t, "registration failed", response["error"])
 }
 
 func TestCompleteAdminProfile(t *testing.T) {
@@ -209,7 +227,6 @@ func TestGetParkingLotsByAdmin_Success(t *testing.T) {
 	mockUseCase := mockgen.NewMockIAdminUseCase(ctrl)
 	r := setupAdminHandler(mockUseCase)
 
-	// Mock de datos de parking lots
 	mockParkingLots := []domain.ParkingLot{
 		{ID: 1, Name: "Parking Lot 1", Address: "123 Main St"},
 		{ID: 2, Name: "Parking Lot 2", Address: "456 Elm St"},
@@ -228,11 +245,9 @@ func TestGetParkingLotsByAdmin_Success(t *testing.T) {
 	var response gin.H
 	json.Unmarshal(w.Body.Bytes(), &response)
 
-	// Convertimos la respuesta JSON a una lista de mapas para hacer la comparación de campos
 	parkingLotsData, ok := response["parking_lots"].([]interface{})
 	assert.True(t, ok, "la respuesta debe contener una lista de parking_lots")
 
-	// Comparamos cada campo esperado de los parqueaderos
 	for i, lotData := range parkingLotsData {
 		lotMap, ok := lotData.(map[string]interface{})
 		assert.True(t, ok, "cada parking lot debe ser un mapa")
