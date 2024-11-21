@@ -47,7 +47,6 @@ func (h *AdminHandler) RegisterAdmin(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
-		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"status": "admin registered successfully"})
