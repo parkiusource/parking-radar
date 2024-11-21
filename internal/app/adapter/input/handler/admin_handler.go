@@ -1,12 +1,13 @@
 package handler
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/CamiloLeonP/parking-radar/internal/app/domain"
 	"github.com/CamiloLeonP/parking-radar/internal/app/usecase"
 	"github.com/CamiloLeonP/parking-radar/internal/helpers"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strings"
 )
 
 type AdminHandler struct {
@@ -20,18 +21,34 @@ func NewAdminHandler(adminUseCase usecase.IAdminUseCase) *AdminHandler {
 }
 
 func (h *AdminHandler) RegisterAdmin(c *gin.Context) {
+	// Define a struct to parse the request body
+	type RegisterAdminPayload struct {
+		User string `json:"user"`
+	}
 
-	adminID, _ := helpers.ExtractAdminIDAndRole(c)
+	var payload RegisterAdminPayload
+
+	// Bind JSON payload to the struct
+	if err := c.ShouldBindJSON(&payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid payload"})
+		return
+	}
+
+	// Extract adminID from the payload
+	adminID := payload.User
 
 	if strings.EqualFold(adminID, "") {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "missing admin ID"})
 		return
 	}
 
+	// Call the use case to register the admin
 	err := h.AdminUseCase.RegisterAdmin(adminID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error registering admin"})
+		return
 	}
+
 	c.JSON(http.StatusCreated, gin.H{"status": "admin registered successfully"})
 }
 
